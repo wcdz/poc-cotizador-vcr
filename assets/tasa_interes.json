@@ -1,0 +1,74 @@
+{
+    "3": {
+        "duracion_tipo": 24,
+        "tasa_inversion": 5.23
+    },
+    "4": {
+        "duracion_tipo": 33,
+        "tasa_inversion": 5.44
+    },
+    "5": {
+        "duracion_tipo": 41,
+        "tasa_inversion": 5.50
+    },
+    "6": {
+        "duracion_tipo": 49,
+        "tasa_inversion": 5.50
+    },
+    "7": {
+        "duracion_tipo": 57,
+        "tasa_inversion": 5.50
+    },
+    "8": {
+        "duracion_tipo": 65,
+        "tasa_inversion": 5.50
+    },
+    "9": {
+        "duracion_tipo": 72,
+        "tasa_inversion": 5.50
+    },
+    "10": {
+        "duracion_tipo": 86,
+        "tasa_inversion": 5.50
+    },
+    "11": {
+        "duracion_tipo": 94,
+        "tasa_inversion": 5.50
+    },
+    "12": {
+        "duracion_tipo": 101,
+        "tasa_inversion": 5.50
+    },
+    "13": {
+        "duracion_tipo": 108,
+        "tasa_inversion": 5.50
+    },
+    "14": {
+        "duracion_tipo": 115,
+        "tasa_inversion": 5.50
+    },
+    "15": {
+        "duracion_tipo": 122,
+        "tasa_inversion": 5.50
+    },
+    "16": {
+        "duracion_tipo": 128,
+        "tasa_inversion": 5.50
+    },
+    "17": {
+        "duracion_tipo": 134,
+        "tasa_inversion": 5.50
+    },
+    "18": {
+        "duracion_tipo": 140,
+        "tasa_inversion": 5.50
+    },
+    "19": {
+        "duracion_tipo": 147,
+        "tasa_inversion": 5.50
+    },
+    "20": {
+        "duracion_tipo": 151,
+        "tasa_inversion": 5.50
+    }
+}
