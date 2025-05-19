@@ -1,0 +1,37 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from src.core.config import settings
+from src.api.routes import cotizacion
+
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    description=settings.DESCRIPTION,
+    version=settings.VERSION,
+    debug=settings.DEBUG
+)
+
+# Configuración de CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # En producción, restringir a dominios específicos
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Incluir routers
+app.include_router(
+    cotizacion.router,
+    prefix=settings.API_V1_STR,
+    tags=["cotizaciones"]
+)
+
+# Endpoint base para verificar que la API está funcionando
+@app.get("/")
+async def root():
+    return {"message": "Bienvenido a la API de Cotizador VCR :D"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("src.main:app", host="0.0.0.0", port=8000, reload=True)
