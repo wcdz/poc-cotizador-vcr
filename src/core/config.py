@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     DESCRIPTION: str = "API para gestionar cotizaciones"
     VERSION: str = "0.1.0"
     DEBUG: bool = True
+    PORT: Optional[int] = 8000
     
     # Configuraciones adicionales aquí
     # DB_URL: str = "sqlite:///./sql_app.db"
@@ -16,6 +17,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"  # Ignorar campos extra en .env
 
 
 @lru_cache()

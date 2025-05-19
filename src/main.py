@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 from src.core.config import settings
 from src.api.routes import cotizacion
@@ -8,7 +9,7 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     description=settings.DESCRIPTION,
     version=settings.VERSION,
-    debug=settings.DEBUG
+    debug=settings.DEBUG,
 )
 
 # Configuración de CORS
@@ -21,17 +22,18 @@ app.add_middleware(
 )
 
 # Incluir routers
-app.include_router(
-    cotizacion.router,
-    prefix=settings.API_V1_STR,
-    tags=["cotizaciones"]
-)
+app.include_router(cotizacion.router, prefix=settings.API_V1_STR, tags=["cotizaciones"])
+
 
 # Endpoint base para verificar que la API está funcionando
 @app.get("/")
 async def root():
     return {"message": "Bienvenido a la API de Cotizador VCR :D"}
 
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("src.main:app", host="0.0.0.0", port=8000, reload=True)
+    
+    # Usar puerto de configuración o de variable de entorno
+    port = int(os.getenv("PORT", settings.PORT))
+    uvicorn.run("src.main:app", host="localhost", port=port, reload=True)
