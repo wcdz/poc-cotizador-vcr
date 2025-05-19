@@ -1,0 +1,33 @@
+{
+    "producto": "ENDOSOS",
+    "parametros_entrada": {
+        "edad_actuarial": 23,
+        "moneda": "PEN",
+        "periodo_vigencia": 12,
+        "periodo_pago_primas": 12,
+        "suma_asegurada": 200000,
+        "sexo": "M",
+        "frecuencia_pago_primas": "ANUAL",
+        "prima": 10000
+    },
+    "parametros_almacenados": {
+        "gastos_adquisicion": 0.01,
+        "gastos_mantenimiento": 0.01,
+        "tir": 0.01,
+        "moce": 0.01,
+        "inflacion_anual": 0.01,
+        "margen_solvencia": 0.01,
+        "fondo_garantia": 0.01
+    },
+    "parametros_calculados ": {
+        "adquisicion_fijo_poliza": 0.01,
+        "mantenimiento_poliza": 0.01,
+        "tir_mensual": 0.01,
+        "reserva": 0.01,
+        "tasa_interes_anual": 0.01,
+        "tasa_interes_mensual": 0.01,
+        "tasa_inversion": 0.01,
+        "tasa_reserva": 0.01
+    },
+    "prima": ""
+}

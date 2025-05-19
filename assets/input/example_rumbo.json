@@ -1,0 +1,13 @@
+{
+    "producto": "RUMBO",
+    "parametros": {
+        "edad_actuarial": 23,
+        "moneda": "PEN",
+        "periodo_vigencia": 12,
+        "periodo_pago_primas": 12,
+        "suma_asegurada": 200000,
+        "sexo": "M",
+        "frecuencia_pago_primas": "ANUAL",
+        "prima": 10000
+    }
+}
