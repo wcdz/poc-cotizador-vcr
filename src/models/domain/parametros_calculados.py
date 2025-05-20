@@ -18,6 +18,8 @@ class ParametrosCalculados:
     inflacion_anual: float
     margen_solvencia: float
     fondo_garantia: float
+    periodo_vigencia: int
+    tasas_interes_data: dict
 
     # Constantes desde configuración
     tasa_mensualizacion: float = TASA_MENSUALIZACION
@@ -72,9 +74,16 @@ class ParametrosCalculados:
         return self.margen_solvencia * (1 + self.fondo_garantia) * self.factor_ajuste
 
     def calcular_tasa_interes_anual(self) -> float:
-        """Calcula la tasa de interés anual"""
-        # Implementar fórmula específica según requerimiento
-        return 0.01  # Valor temporal
+        """Calcula la tasa de interés anual basada en la tabla de tasas de interés"""
+        try:
+            tasa_interes_anual = self.tasas_interes_data[str(self.periodo_vigencia)]
+            duracion_tipo = tasa_interes_anual["duracion_tipo"]
+            tasa_inversion = tasa_interes_anual["tasa_inversion"]
+            return tasa_inversion
+        except KeyError:
+            raise ValueError(
+                f"No se encontró una tasa para el periodo {self.periodo_vigencia}"
+            )
 
     def calcular_tasa_interes_mensual(self) -> float:
         """Calcula la tasa de interés mensual"""

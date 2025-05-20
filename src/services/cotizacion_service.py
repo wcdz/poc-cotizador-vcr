@@ -10,6 +10,7 @@ from src.repositories.parametros_repository import JsonParametrosRepository
 from src.models.domain.parametros_calculados import (
     ParametrosCalculados as ParametrosCalculadosDomain,
 )
+from src.repositories.tasa_interes_repository import JsonTasaInteresRepository
 
 
 class CotizadorService:
@@ -17,6 +18,7 @@ class CotizadorService:
 
     def __init__(self):
         self.parametros_repository = JsonParametrosRepository()
+        self.tasa_interes_repository = JsonTasaInteresRepository()
 
     def cotizar(self, cotizacion_input: CotizacionInput) -> CotizacionOutput:
         """
@@ -31,8 +33,12 @@ class CotizadorService:
             cotizacion_input.producto.value
         )
 
+        # Obtener tasas de interés - pasar el diccionario completo sin procesar
+        tasas_interes_data = self.tasa_interes_repository.get_tasas_interes()
+
         # Extraer la prima del esquema de entrada si es RUMBO
         prima = 0.0
+        periodo_vigencia = cotizacion_input.parametros.periodo_vigencia
         if cotizacion_input.producto == TipoProducto.RUMBO:
             prima = cotizacion_input.parametros.prima
 
@@ -46,6 +52,8 @@ class CotizadorService:
             inflacion_anual=parametros_almacenados.inflacion_anual,
             margen_solvencia=parametros_almacenados.margen_solvencia,
             fondo_garantia=parametros_almacenados.fondo_garantia,
+            periodo_vigencia=periodo_vigencia,
+            tasas_interes_data=tasas_interes_data,
         )
 
         # Convertir el modelo de dominio a esquema de respuesta
