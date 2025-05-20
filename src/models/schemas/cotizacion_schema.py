@@ -1,6 +1,15 @@
 from pydantic import BaseModel, Field
 from typing import Literal, Optional, Union
 from enum import Enum
+from core.constans import (
+    EDAD_MINIMA_PARTICIPACION,
+    EDAD_MAXIMA_PERMANENCIA,
+    MINIMO_PERIODO_PAGO_PRIMAS,
+    MINIMO_PERIODO_VIGENCIA,
+    MINIMO_SUMAS_ASEGURADAS,
+    MINIMO_PORCENTAJE_DEVOLUCION,
+    MINIMO_PRIMA,
+)
 
 
 class Moneda(str, Enum):
@@ -31,27 +40,36 @@ class ParametrosBase(BaseModel):
     # ge: greater than or equal to value, debe ser mayor o igual a 18
     # le: less than or equal to value, debe ser menor o igual a 80
     edad_actuarial: int = Field(
-        ..., ge=18, le=80, description="Edad actuarial del asegurado"
+        ...,
+        ge=EDAD_MINIMA_PARTICIPACION,
+        le=EDAD_MAXIMA_PERMANENCIA,
+        description="Edad actuarial del asegurado",
     )
     moneda: Moneda
-    periodo_vigencia: int = Field(..., ge=1, description="Periodo de vigencia en años")
-    periodo_pago_primas: int = Field(
-        ..., ge=1, description="Periodo de pago de primas en años"
+    periodo_vigencia: int = Field(
+        ..., ge=MINIMO_PERIODO_VIGENCIA, description="Periodo de vigencia en años"
     )
-    suma_asegurada: float = Field(..., gt=0, description="Suma asegurada")
+    periodo_pago_primas: int = Field(
+        ...,
+        ge=MINIMO_PERIODO_PAGO_PRIMAS,
+        description="Periodo de pago de primas en años",
+    )
+    suma_asegurada: float = Field(
+        ..., gt=MINIMO_SUMAS_ASEGURADAS, description="Suma asegurada"
+    )
     sexo: Sexo
     frecuencia_pago_primas: FrecuenciaPago
 
 
 # Parámetros específicos para RUMBO
 class ParametrosRumbo(ParametrosBase):
-    prima: float = Field(..., gt=0, description="Prima a pagar")
+    prima: float = Field(..., gt=MINIMO_PRIMA, description="Prima a pagar")
 
 
 # Parámetros específicos para ENDOSOS
 class ParametrosEndosos(ParametrosBase):
     porcentaje_devolucion: float = Field(
-        ..., gt=0, description="Porcentaje de devolución"
+        ..., gt=MINIMO_PORCENTAJE_DEVOLUCION, description="Porcentaje de devolución"
     )
 
 
