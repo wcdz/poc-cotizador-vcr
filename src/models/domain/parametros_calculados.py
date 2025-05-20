@@ -16,6 +16,8 @@ class ParametrosCalculados:
     tasa_costo_capital_tir: float
     moce: float
     inflacion_anual: float
+    margen_solvencia: float
+    fondo_garantia: float
 
     # Constantes desde configuración
     tasa_mensualizacion: float = TASA_MENSUALIZACION
@@ -63,11 +65,11 @@ class ParametrosCalculados:
 
     def calcular_inflacion_mensual(self) -> float:
         """Calcula la inflación mensual a partir de la anual"""
-        return (1 + self.inflacion_anual) ** (1/12) - 1
+        return (1 + self.inflacion_anual) ** (self.tasa_mensualizacion) - 1
 
     def calcular_reserva(self) -> float:
         """Calcula la reserva"""
-        return self.prima * self.factor_reserva
+        return self.margen_solvencia * (1 + self.fondo_garantia) * self.factor_ajuste
 
     def calcular_tasa_interes_anual(self) -> float:
         """Calcula la tasa de interés anual"""

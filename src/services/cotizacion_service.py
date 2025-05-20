@@ -44,6 +44,8 @@ class CotizadorService:
             tasa_costo_capital_tir=parametros_almacenados.tir,
             moce=parametros_almacenados.moce,
             inflacion_anual=parametros_almacenados.inflacion_anual,
+            margen_solvencia=parametros_almacenados.margen_solvencia,
+            fondo_garantia=parametros_almacenados.fondo_garantia,
         )
 
         # Convertir el modelo de dominio a esquema de respuesta
