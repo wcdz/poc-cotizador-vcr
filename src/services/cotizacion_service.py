@@ -6,6 +6,8 @@ from src.models.schemas.cotizacion_schema import (
     TipoProducto,
 )
 
+from src.repositories.parametros_repository import JsonParametrosRepository
+
 
 class CotizadorService:
     """Servicio unificado para cotizaciones de distintos productos"""
@@ -46,14 +48,37 @@ class CotizadorService:
 
     def _obtener_parametros_almacenados(self) -> ParametrosAlmacenados:
         """Obtiene los parámetros almacenados comunes para todos los productos"""
+        parametros_repository = JsonParametrosRepository()
+        parametros_almacenados = parametros_repository.get_parametros_by_producto(
+            "rumbo"
+        )
+        (
+            gasto_adquisicion,
+            gasto_mantenimiento,
+            tasa_costo_capital_tir,
+            moce,
+            inflacion_anual,
+            margen_solvencia,
+            fondo_garantia,
+        ) = (
+            parametros_almacenados["gasto_adquisicion"],
+            parametros_almacenados["gasto_mantenimiento"],
+            parametros_almacenados["tasa_costo_capital_tir"],
+            parametros_almacenados["moce"],
+            parametros_almacenados["inflacion_anual"],
+            parametros_almacenados["margen_solvencia"],
+            parametros_almacenados["fondo_garantia"],
+        )
+
+        print(gasto_adquisicion)
         return ParametrosAlmacenados(
-            gastos_adquisicion=0.01,
-            gastos_mantenimiento=0.01,
-            tir=0.01,
-            moce=0.01,
-            inflacion_anual=0.01,
-            margen_solvencia=0.01,
-            fondo_garantia=0.01,
+            gasto_adquisicion=gasto_adquisicion,
+            gasto_mantenimiento=gasto_mantenimiento,
+            tir=tasa_costo_capital_tir,
+            moce=moce,
+            inflacion_anual=inflacion_anual,
+            margen_solvencia=margen_solvencia,
+            fondo_garantia=fondo_garantia,
         )
 
     def _calcular_parametros(self) -> ParametrosCalculados:

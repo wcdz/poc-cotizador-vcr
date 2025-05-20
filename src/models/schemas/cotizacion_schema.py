@@ -96,8 +96,8 @@ class CotizacionInput(BaseModel):
 
 
 class ParametrosAlmacenados(BaseModel):
-    gastos_adquisicion: float
-    gastos_mantenimiento: float
+    gasto_adquisicion: float
+    gasto_mantenimiento: float
     tir: float
     moce: float
     inflacion_anual: float
