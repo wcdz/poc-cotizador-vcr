@@ -2,7 +2,7 @@ from fastapi import Depends
 from typing import Generator
 
 from src.repositories.cotizacion_repository import CotizacionRepository
-from src.services.cotizador import CotizadorService
+from src.services.cotizacion_service import CotizadorService
 
 
 def get_cotizacion_repository() -> Generator[CotizacionRepository, None, None]:

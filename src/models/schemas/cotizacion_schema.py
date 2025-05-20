@@ -37,7 +37,7 @@ class ParametrosBase(BaseModel):
     periodo_vigencia: int = Field(..., ge=1, description="Periodo de vigencia en años")
     periodo_pago_primas: int = Field(
         ..., ge=1, description="Periodo de pago de primas en años"
-    ) 
+    )
     suma_asegurada: float = Field(..., gt=0, description="Suma asegurada")
     sexo: Sexo
     frecuencia_pago_primas: FrecuenciaPago
