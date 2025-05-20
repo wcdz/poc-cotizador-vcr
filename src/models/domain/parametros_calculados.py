@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from core.constans import TASA_MENSUALIZACION, FACTOR_AJUSTE, FACTOR_RESERVA
-from src.utils.tasa_reserva import tasa_interes_reserva
+from src.helpers.tasa_interes_reserva import tasa_interes_reserva
 
 
 @dataclass
@@ -21,6 +21,7 @@ class ParametrosCalculados:
     fondo_garantia: float
     periodo_vigencia: int
     tasas_interes_data: dict
+    periodo_pago_primas: int
 
     # Constantes desde configuración
     tasa_mensualizacion: float = TASA_MENSUALIZACION
@@ -78,8 +79,6 @@ class ParametrosCalculados:
             tasa_interes_anual = tasa_interes_reserva(self.tasas_interes_data)[
                 str(self.periodo_vigencia)
             ]
-            duracion_tipo = tasa_interes_anual["duracion_tipo"]
-            tasa_inversion = tasa_interes_anual["tasa_inversion"]
             tasa_reserva = tasa_interes_anual["tasa_reserva"]
             return tasa_reserva
         except KeyError:
@@ -95,4 +94,8 @@ class ParametrosCalculados:
     def calcular_tasa_inversion(self) -> float:
         """Calcula la tasa de inversión"""
         # Implementar fórmula específica según requerimiento
-        return 0.01  # Valor temporal
+        tasa_interes_anual = tasa_interes_reserva(self.tasas_interes_data)[
+            str(self.periodo_pago_primas)
+        ]
+        tasa_inversion = tasa_interes_anual["tasa_inversion"]
+        return tasa_inversion

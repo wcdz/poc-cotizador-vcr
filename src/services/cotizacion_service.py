@@ -39,6 +39,7 @@ class CotizadorService:
         # Extraer la prima del esquema de entrada si es RUMBO
         prima = 0.0
         periodo_vigencia = cotizacion_input.parametros.periodo_vigencia
+        periodo_pago_primas = cotizacion_input.parametros.periodo_pago_primas
         if cotizacion_input.producto == TipoProducto.RUMBO:
             prima = cotizacion_input.parametros.prima
 
@@ -54,6 +55,7 @@ class CotizadorService:
             fondo_garantia=parametros_almacenados.fondo_garantia,
             periodo_vigencia=periodo_vigencia,
             tasas_interes_data=tasas_interes_data,
+            periodo_pago_primas=periodo_pago_primas,
         )
 
         # Convertir el modelo de dominio a esquema de respuesta
