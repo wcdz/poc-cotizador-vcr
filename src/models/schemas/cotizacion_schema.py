@@ -109,12 +109,12 @@ class ParametrosCalculados(BaseModel):
     adquisicion_fijo_poliza: float
     mantenimiento_poliza: float
     tir_mensual: float
+    inflacion_mensual: float
     reserva: float
     tasa_interes_anual: float
     tasa_interes_mensual: float
     tasa_inversion: float
     tasa_reserva: float
-
 
 # Salida común para todos los productos
 class CotizacionOutput(BaseModel):
