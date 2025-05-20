@@ -114,7 +114,6 @@ class CotizadorService:
             tasa_interes_anual=dominio.tasa_interes_anual,
             tasa_interes_mensual=dominio.tasa_interes_mensual,
             tasa_inversion=dominio.tasa_inversion,
-            tasa_reserva=dominio.tasa_reserva,
             inflacion_mensual=dominio.inflacion_mensual,
         )
 

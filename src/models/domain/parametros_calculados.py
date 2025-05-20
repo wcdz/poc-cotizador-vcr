@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from core.constans import TASA_MENSUALIZACION, FACTOR_AJUSTE, FACTOR_RESERVA
+from src.utils.tasa_reserva import tasa_interes_reserva
 
 
 @dataclass
@@ -34,7 +35,6 @@ class ParametrosCalculados:
     tasa_interes_anual: float = field(init=False)
     tasa_interes_mensual: float = field(init=False)
     tasa_inversion: float = field(init=False)
-    tasa_reserva: float = field(init=False)
     inflacion_mensual: float = field(init=False)
 
     def __post_init__(self):
@@ -50,7 +50,6 @@ class ParametrosCalculados:
         self.tasa_interes_anual = self.calcular_tasa_interes_anual()
         self.tasa_interes_mensual = self.calcular_tasa_interes_mensual()
         self.tasa_inversion = self.calcular_tasa_inversion()
-        self.tasa_reserva = self.calcular_tasa_reserva()
         self.inflacion_mensual = self.calcular_inflacion_mensual()
 
     def calcular_adquisicion_fijo_poliza(self) -> float:
@@ -76,10 +75,13 @@ class ParametrosCalculados:
     def calcular_tasa_interes_anual(self) -> float:
         """Calcula la tasa de interés anual basada en la tabla de tasas de interés"""
         try:
-            tasa_interes_anual = self.tasas_interes_data[str(self.periodo_vigencia)]
+            tasa_interes_anual = tasa_interes_reserva(self.tasas_interes_data)[
+                str(self.periodo_vigencia)
+            ]
             duracion_tipo = tasa_interes_anual["duracion_tipo"]
             tasa_inversion = tasa_interes_anual["tasa_inversion"]
-            return tasa_inversion
+            tasa_reserva = tasa_interes_anual["tasa_reserva"]
+            return tasa_reserva
         except KeyError:
             raise ValueError(
                 f"No se encontró una tasa para el periodo {self.periodo_vigencia}"
@@ -87,14 +89,10 @@ class ParametrosCalculados:
 
     def calcular_tasa_interes_mensual(self) -> float:
         """Calcula la tasa de interés mensual"""
-        return self.calcular_tasa_interes_anual() / 12
+        tasa_interes_anual = self.calcular_tasa_interes_anual() / 100
+        return (1 + tasa_interes_anual) ** (self.tasa_mensualizacion) - 1
 
     def calcular_tasa_inversion(self) -> float:
         """Calcula la tasa de inversión"""
-        # Implementar fórmula específica según requerimiento
-        return 0.01  # Valor temporal
-
-    def calcular_tasa_reserva(self) -> float:
-        """Calcula la tasa de reserva"""
         # Implementar fórmula específica según requerimiento
         return 0.01  # Valor temporal

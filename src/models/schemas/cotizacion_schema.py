@@ -114,7 +114,6 @@ class ParametrosCalculados(BaseModel):
     tasa_interes_anual: float
     tasa_interes_mensual: float
     tasa_inversion: float
-    tasa_reserva: float
 
 # Salida común para todos los productos
 class CotizacionOutput(BaseModel):
