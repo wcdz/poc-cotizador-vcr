@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, Tuple, Union
 from enum import Enum
 import math
 from decimal import Decimal
+from src.core.constans import ANUAL, SEMESTRAL, TRIMESTRAL, MENSUAL
 
 from src.repositories.tabla_mortalidad_repository import (
     tabla_mortalidad_repository,
@@ -37,10 +38,10 @@ class ParametrosActuariales:
     def get_meses_frecuencia(self) -> int:
         """Obtiene la cantidad de meses según la frecuencia de pago"""
         meses_por_frecuencia = {
-            FrecuenciaPago.ANUAL: 12,
-            FrecuenciaPago.SEMESTRAL: 6,
-            FrecuenciaPago.TRIMESTRAL: 3,
-            FrecuenciaPago.MENSUAL: 1,
+            FrecuenciaPago.ANUAL: ANUAL,
+            FrecuenciaPago.SEMESTRAL: SEMESTRAL,
+            FrecuenciaPago.TRIMESTRAL: TRIMESTRAL,
+            FrecuenciaPago.MENSUAL: MENSUAL,
         }
         return meses_por_frecuencia.get(self.frecuencia_pago_primas, 12)
 
@@ -100,12 +101,12 @@ class ExpuestosMesActuarial:
             # Cálculo de mortalidad
             mortalidad_anual = self._obtener_mortalidad_anual(edad_actual)
             mortalidad_mensual = self._calcular_mortalidad_mensual(mortalidad_anual)
-            
+
             # CORRECCIÓN: El ajuste de mortalidad (ej: 150) viene como porcentaje
             # Primero convertimos a multiplicador (ej: 1.5) y luego aplicamos
             factor_ajuste = self.parametros.ajuste_mortalidad / 100.0
             mortalidad_ajustada = mortalidad_mensual * factor_ajuste
-            
+
             # CORRECCIÓN: Aplicar la tasa correctamente por mil
             # Si mortalidad_mensual está en formato "por mil", debemos dividir por 1000
             fallecidos = vivos_inicio * mortalidad_ajustada / 1000.0
