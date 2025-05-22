@@ -4,7 +4,7 @@ import os
 
 from src.core.config import settings
 from src.api.routes import cotizacion_router  # Router unificado para productos
-from src.api.routes import expuestos_actuarial_router
+from src.api.routes import expuestos_mes_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -31,7 +31,7 @@ app.include_router(
 
 # Router para cálculos actuariales de expuestos
 app.include_router(
-    expuestos_actuarial_router.router,
+    expuestos_mes_router.router,
     prefix=f"{settings.API_V1_STR}/expuestos",
     tags=["expuestos"],
 )

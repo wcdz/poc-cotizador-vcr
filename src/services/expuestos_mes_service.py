@@ -1,15 +1,15 @@
 from typing import Dict, List, Any, Optional, Union
 
-from src.models.domain.expuestos_actuarial import (
+from src.models.domain.expuestos_mes import (
     ExpuestosMesActuarial, 
     ParametrosActuariales, 
     FrecuenciaPago,
     ResultadoMensual
 )
 from src.repositories.tabla_mortalidad_repository import Sexo, EstadoFumador
+from src.core.constans import MESES_PROYECCION
 
-
-class ExpuestosActuarialService:
+class ExpuestosMesService:
     """Servicio para realizar cálculos actuariales de expuestos"""
     
     def calcular_proyeccion(
@@ -20,8 +20,8 @@ class ExpuestosActuarialService:
         frecuencia_pago_primas: str,
         periodo_vigencia: int,
         periodo_pago_primas: int,
-        meses_proyeccion: int = 12,
-        ajuste_mortalidad: float = 1.0
+        ajuste_mortalidad: float,
+        meses_proyeccion: int = MESES_PROYECCION    
     ) -> Dict[str, Any]:
         """
         Realiza el cálculo de proyección de expuestos
@@ -33,8 +33,8 @@ class ExpuestosActuarialService:
             frecuencia_pago_primas: "ANUAL", "SEMESTRAL", "TRIMESTRAL" o "MENSUAL"
             periodo_vigencia: Período de vigencia del seguro en años
             periodo_pago_primas: Período de pago de primas en años
+            ajuste_mortalidad: Factor de ajuste para la tabla de mortalidad
             meses_proyeccion: Número de meses a proyectar (default: 12)
-            ajuste_mortalidad: Factor de ajuste para la tabla de mortalidad (default: 1.0)
             
         Returns:
             Diccionario con los resultados de la proyección
@@ -125,4 +125,4 @@ class ExpuestosActuarialService:
 
 
 # Instancia global del servicio
-expuestos_actuarial_service = ExpuestosActuarialService() 
+expuestos_mes_service = ExpuestosMesService() 

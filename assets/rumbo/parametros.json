@@ -5,5 +5,6 @@
     "moce": 0.06,
     "inflacion_anual": 0,
     "margen_solvencia": 0.05,
-    "fondo_garantia": 0.35
+    "fondo_garantia": 0.35,
+    "ajuste_mortalidad": 150
 }
