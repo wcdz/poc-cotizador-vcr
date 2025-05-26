@@ -1,4 +1,4 @@
-from core.constans import FACTOR_RESERVA
+from src.core.constans import FACTOR_RESERVA
 
 
 def tasa_interes_reserva(tasas_interes: dict) -> float:

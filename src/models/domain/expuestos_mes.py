@@ -134,15 +134,15 @@ class ExpuestosMesActuarial:
                 mes=mes,
                 anio_poliza=anio_poliza,
                 edad_actual=edad_actual,
-                vivos_inicio=vivos_inicio,
-                fallecidos=fallecidos,
-                vivos_despues_fallecidos=vivos_despues_fallecidos,
-                caducados=caducados,
-                vivos_final=vivos_final,
-                mortalidad_anual=mortalidad_anual,
-                mortalidad_mensual=mortalidad_mensual,
-                mortalidad_ajustada=mortalidad_ajustada,  # Mantener en formato "por mil"
-                tasa_caducidad=tasa_caducidad,
+                vivos_inicio=Decimal(str(vivos_inicio)),
+                fallecidos=Decimal(str(fallecidos)),
+                vivos_despues_fallecidos=Decimal(str(vivos_despues_fallecidos)),
+                caducados=Decimal(str(caducados)),
+                vivos_final=Decimal(str(vivos_final)),
+                mortalidad_anual=Decimal(str(mortalidad_anual)),  
+                mortalidad_mensual=Decimal(str(mortalidad_mensual)),
+                mortalidad_ajustada=Decimal(str(mortalidad_ajustada)),  # Mantener en formato "por mil"
+                tasa_caducidad=Decimal(str(tasa_caducidad)),
             )
 
             self.resultados.append(resultado)

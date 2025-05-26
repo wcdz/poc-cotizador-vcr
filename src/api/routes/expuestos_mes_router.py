@@ -1,12 +1,21 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 import json
+from decimal import Decimal
 
 from src.services.expuestos_mes_service import expuestos_mes_service
 from src.models.schemas.expuestos_mes_schema import (
     ProyeccionActuarialInput,
     ProyeccionActuarialOutput
 )
+
+
+# Clase personalizada para codificar números sin notación científica
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return str(obj)
+        return super().default(obj)
 
 
 router = APIRouter()
@@ -67,9 +76,12 @@ async def calcular_proyeccion_actuarial(datos: ProyeccionActuarialInput):
         # Validar con el modelo Pydantic
         resultado_validado = ProyeccionActuarialOutput(**resultado)
 
-        # Devolver como JSON formateado
+        # Devolver como JSON formateado sin notación científica
+        content = json.loads(resultado_validado.model_dump_json(indent=2))
+        formatted_json = json.dumps(content, indent=2, cls=CustomJSONEncoder)
+        
         return JSONResponse(
-            content=json.loads(resultado_validado.model_dump_json(indent=2)),
+            content=json.loads(formatted_json),
             status_code=200,
         )
 

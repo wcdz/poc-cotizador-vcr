@@ -1,4 +1,5 @@
 from typing import Dict, List, Any, Optional, Union
+from decimal import Decimal
 
 from src.models.domain.expuestos_mes import (
     ExpuestosMesActuarial,
@@ -93,15 +94,15 @@ class ExpuestosMesService:
                 mes=r.mes,
                 anio_poliza=r.anio_poliza,
                 edad_actual=r.edad_actual,
-                vivos_inicio=round(r.vivos_inicio, 6),
-                fallecidos=round(r.fallecidos, 6),
-                vivos_despues_fallecidos=round(r.vivos_despues_fallecidos, 6),
-                caducados=round(r.caducados, 6),
-                vivos_final=round(r.vivos_final, 6),
-                mortalidad_anual=round(r.mortalidad_anual, 6),
-                mortalidad_mensual=round(r.mortalidad_mensual, 6),
-                mortalidad_ajustada=round(r.mortalidad_ajustada, 6),
-                tasa_caducidad=round(r.tasa_caducidad, 6),
+                vivos_inicio=str(Decimal(str(r.vivos_inicio))),
+                fallecidos=str(Decimal(str(r.fallecidos))),
+                vivos_despues_fallecidos=str(Decimal(str(r.vivos_despues_fallecidos))),
+                caducados=str(Decimal(str(r.caducados))),
+                vivos_final=str(Decimal(str(r.vivos_final))),
+                mortalidad_anual=str(Decimal(str(r.mortalidad_anual))),
+                mortalidad_mensual=str(Decimal(str(r.mortalidad_mensual))),
+                mortalidad_ajustada=str(Decimal(str(r.mortalidad_ajustada))),
+                tasa_caducidad=str(Decimal(str(r.tasa_caducidad))),
             )
             resultados_formateados.append(resultado_mensual.model_dump())
 
@@ -109,16 +110,16 @@ class ExpuestosMesService:
         resumen_por_anio = {}
         for anio, datos in resumen["por_anio"].items():
             resumen_por_anio[str(anio)] = ResumenAnioOutput(
-                fallecidos=round(datos["fallecidos"], 6),
-                caducados=round(datos["caducados"], 6),
-                vivos_final=round(datos["vivos_final"], 6)
+                fallecidos=str(Decimal(str(datos["fallecidos"]))),
+                caducados=str(Decimal(str(datos["caducados"]))),
+                vivos_final=str(Decimal(str(datos["vivos_final"])))
             ).model_dump()
 
         resumen_formateado = ResumenOutput(
-            vivos_inicial=round(resumen["vivos_inicial"], 6),
-            vivos_final=round(resumen["vivos_final"], 6),
-            fallecidos_total=round(resumen["fallecidos_total"], 6),
-            caducados_total=round(resumen["caducados_total"], 6),
+            vivos_inicial=str(Decimal(str(resumen["vivos_inicial"]))),
+            vivos_final=str(Decimal(str(resumen["vivos_final"]))),
+            fallecidos_total=str(Decimal(str(resumen["fallecidos_total"]))),
+            caducados_total=str(Decimal(str(resumen["caducados_total"]))),
             meses_calculados=resumen["meses_calculados"],
             por_anio=resumen_por_anio
         ).model_dump()

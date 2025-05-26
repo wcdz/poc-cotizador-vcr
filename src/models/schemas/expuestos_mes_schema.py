@@ -67,28 +67,28 @@ class ResultadoMensualOutput(BaseModel):
     mes: int
     anio_poliza: int
     edad_actual: int
-    vivos_inicio: float
-    fallecidos: float
-    vivos_despues_fallecidos: float
-    caducados: float
-    vivos_final: float
-    mortalidad_anual: float
-    mortalidad_mensual: float
-    mortalidad_ajustada: float
-    tasa_caducidad: float
+    vivos_inicio: str
+    fallecidos: str
+    vivos_despues_fallecidos: str
+    caducados: str
+    vivos_final: str
+    mortalidad_anual: str
+    mortalidad_mensual: str
+    mortalidad_ajustada: str
+    tasa_caducidad: str
 
 
 class ResumenAnioOutput(BaseModel):
-    fallecidos: float
-    caducados: float
-    vivos_final: float
+    fallecidos: str
+    caducados: str
+    vivos_final: str
 
 
 class ResumenOutput(BaseModel):
-    vivos_inicial: float
-    vivos_final: float
-    fallecidos_total: float
-    caducados_total: float
+    vivos_inicial: str
+    vivos_final: str
+    fallecidos_total: str
+    caducados_total: str
     meses_calculados: int
     por_anio: Dict[str, ResumenAnioOutput]
 
