@@ -93,6 +93,7 @@ class CotizadorService:
         inflacion_anual = parametros_dict.get("inflacion_anual", 0.01)
         margen_solvencia = parametros_dict.get("margen_solvencia", 0.01)
         fondo_garantia = parametros_dict.get("fondo_garantia", 0.01)
+        ajuste_mortalidad = parametros_dict.get("ajuste_mortalidad", 0.01)
 
         return ParametrosAlmacenadosSchema(
             gasto_adquisicion=gasto_adquisicion,
@@ -102,6 +103,7 @@ class CotizadorService:
             inflacion_anual=inflacion_anual,
             margen_solvencia=margen_solvencia,
             fondo_garantia=fondo_garantia,
+            ajuste_mortalidad=ajuste_mortalidad,
         )
 
     def _convertir_a_esquema(

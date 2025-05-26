@@ -103,6 +103,7 @@ class ParametrosAlmacenados(BaseModel):
     inflacion_anual: float
     margen_solvencia: float
     fondo_garantia: float
+    ajuste_mortalidad: float
 
 
 class ParametrosCalculados(BaseModel):
