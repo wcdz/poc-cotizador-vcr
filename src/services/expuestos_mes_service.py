@@ -12,12 +12,19 @@ from src.core.constans import MESES_PROYECCION
 from src.models.schemas.expuestos_mes_schema import (
     ResultadoMensualOutput,
     ResumenOutput,
-    ResumenAnioOutput
+    ResumenAnioOutput,
 )
+from src.repositories.parametros_repository import JsonParametrosRepository
 
 
 class ExpuestosMesService:
     """Servicio para realizar cálculos actuariales de expuestos"""
+
+    def __init__(self):
+        self.parametros_repository = JsonParametrosRepository()
+        self.parametros_dict = self.parametros_repository.get_parametros_by_producto(
+            "rumbo"
+        )
 
     def calcular_proyeccion(
         self,
@@ -29,7 +36,7 @@ class ExpuestosMesService:
         periodo_pago_primas: int,
         ajuste_mortalidad: float,
         meses_proyeccion: int = MESES_PROYECCION,
-    ) -> Dict[str, Any]:
+    ) -> Dict[str, Any]:    
         """
         Realiza el cálculo de proyección de expuestos
 
@@ -50,6 +57,9 @@ class ExpuestosMesService:
         sexo_enum = Sexo.MASCULINO if sexo == Sexo.MASCULINO else Sexo.FEMENINO
         fumador_enum = EstadoFumador.FUMADOR if fumador else EstadoFumador.NO_FUMADOR
         frecuencia_enum = FrecuenciaPago(frecuencia_pago_primas)
+        ajuste_mortalidad = self.parametros_dict.get(
+            "ajuste_mortalidad", 0.01
+        )  # ! VALIDAR ESTO A FUTURO
 
         # Crear parámetros actuariales
         parametros = ParametrosActuariales(
@@ -112,7 +122,7 @@ class ExpuestosMesService:
             resumen_por_anio[str(anio)] = ResumenAnioOutput(
                 fallecidos=str(Decimal(str(datos["fallecidos"]))),
                 caducados=str(Decimal(str(datos["caducados"]))),
-                vivos_final=str(Decimal(str(datos["vivos_final"])))
+                vivos_final=str(Decimal(str(datos["vivos_final"]))),
             ).model_dump()
 
         resumen_formateado = ResumenOutput(
@@ -121,7 +131,7 @@ class ExpuestosMesService:
             fallecidos_total=str(Decimal(str(resumen["fallecidos_total"]))),
             caducados_total=str(Decimal(str(resumen["caducados_total"]))),
             meses_calculados=resumen["meses_calculados"],
-            por_anio=resumen_por_anio
+            por_anio=resumen_por_anio,
         ).model_dump()
 
         return {

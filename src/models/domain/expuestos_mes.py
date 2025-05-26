@@ -31,8 +31,8 @@ class ParametrosActuariales:
     frecuencia_pago_primas: FrecuenciaPago
     periodo_vigencia: int
     periodo_pago_primas: int
+    ajuste_mortalidad: float
     probabilidad_vivos_inicial: float = PROBABILIDAD_VIVOS  # Por defecto comienza con 100% de vivos
-    ajuste_mortalidad: float = 150
 
     def get_meses_frecuencia(self) -> int:
         """Obtiene la cantidad de meses según la frecuencia de pago"""
