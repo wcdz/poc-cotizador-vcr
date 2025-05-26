@@ -10,6 +10,7 @@ from src.core.constans import (
     MINIMO_PORCENTAJE_DEVOLUCION,
     MINIMO_PRIMA,
 )
+from src.models.schemas.expuestos_mes_schema import ProyeccionActuarialOutput
 
 
 class Moneda(str, Enum):
@@ -124,6 +125,7 @@ class CotizacionOutput(BaseModel):
     parametros_entrada: Union[ParametrosRumbo, ParametrosEndosos]
     parametros_almacenados: ParametrosAlmacenados
     parametros_calculados: ParametrosCalculados
+    expuestos_mes: ProyeccionActuarialOutput
 
     # Campos opcionales específicos para cada producto
     porcentaje_devolucion: Optional[str] = None  # Para RUMBO

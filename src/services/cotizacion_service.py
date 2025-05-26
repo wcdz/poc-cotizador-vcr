@@ -11,6 +11,7 @@ from src.models.domain.parametros_calculados import (
     ParametrosCalculados as ParametrosCalculadosDomain,
 )
 from src.repositories.tasa_interes_repository import JsonTasaInteresRepository
+from src.services.expuestos_mes_service import ExpuestosMesService
 
 
 class CotizadorService:
@@ -19,6 +20,7 @@ class CotizadorService:
     def __init__(self):
         self.parametros_repository = JsonParametrosRepository()
         self.tasa_interes_repository = JsonTasaInteresRepository()
+        self.expuestos_mes = ExpuestosMesService()
 
     def cotizar(self, cotizacion_input: CotizacionInput) -> CotizacionOutput:
         """
@@ -61,12 +63,23 @@ class CotizadorService:
         # Convertir el modelo de dominio a esquema de respuesta
         parametros_calculados = self._convertir_a_esquema(parametros_dominio)
 
+        expuestos_mes = self.expuestos_mes.calcular_proyeccion(
+            edad_actuarial=cotizacion_input.parametros.edad_actuarial,
+            sexo=cotizacion_input.parametros.sexo,
+            fumador=cotizacion_input.parametros.fumador,
+            frecuencia_pago_primas=cotizacion_input.parametros.frecuencia_pago_primas,
+            periodo_vigencia=periodo_vigencia,
+            periodo_pago_primas=periodo_pago_primas,
+            ajuste_mortalidad=parametros_almacenados.ajuste_mortalidad
+        )
+
         # Crear la respuesta base
         respuesta = CotizacionOutput(
             producto=cotizacion_input.producto,
             parametros_entrada=cotizacion_input.parametros,
             parametros_almacenados=parametros_almacenados,
             parametros_calculados=parametros_calculados,
+            expuestos_mes=expuestos_mes,
         )
 
         # Añadir campos específicos según el producto
