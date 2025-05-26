@@ -59,6 +59,7 @@ class ParametrosBase(BaseModel):
     )
     sexo: Sexo
     frecuencia_pago_primas: FrecuenciaPago
+    fumador: bool = Field(..., description="Indica si el asegurado es fumador")
 
 
 # Parámetros específicos para RUMBO
@@ -115,6 +116,7 @@ class ParametrosCalculados(BaseModel):
     tasa_interes_anual: float
     tasa_interes_mensual: float
     tasa_inversion: float
+
 
 # Salida común para todos los productos
 class CotizacionOutput(BaseModel):

@@ -36,7 +36,7 @@ class ExpuestosMesService:
         periodo_pago_primas: int,
         ajuste_mortalidad: float,
         meses_proyeccion: int = MESES_PROYECCION,
-    ) -> Dict[str, Any]:    
+    ) -> Dict[str, Any]:
         """
         Realiza el cálculo de proyección de expuestos
 
