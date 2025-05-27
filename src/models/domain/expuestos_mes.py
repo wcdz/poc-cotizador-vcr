@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Tuple, Union
 from enum import Enum
 import math
 from decimal import Decimal
-from src.core.constans import ANUAL, SEMESTRAL, TRIMESTRAL, MENSUAL, PROBABILIDAD_VIVOS
+from src.core.constans import PROBABILIDAD_VIVOS
 
 from src.repositories.tabla_mortalidad_repository import (
     tabla_mortalidad_repository,
@@ -13,13 +13,8 @@ from src.repositories.tabla_mortalidad_repository import (
 from src.repositories.caducidad_repository import caducidad_repository
 from src.helpers.caducidad_mensual import caducidad_mensual
 from src.utils.anios_meses import anios_meses
-
-
-class FrecuenciaPago(str, Enum):
-    ANUAL = "ANUAL"
-    SEMESTRAL = "SEMESTRAL"
-    TRIMESTRAL = "TRIMESTRAL"
-    MENSUAL = "MENSUAL"
+from src.utils.frecuencia_meses import frecuencia_meses
+from src.common.frecuencia_pago import FrecuenciaPago
 
 
 @dataclass
@@ -39,13 +34,7 @@ class ParametrosActuariales:
 
     def get_meses_frecuencia(self) -> int:
         """Obtiene la cantidad de meses según la frecuencia de pago"""
-        meses_por_frecuencia = {
-            FrecuenciaPago.ANUAL: ANUAL,
-            FrecuenciaPago.SEMESTRAL: SEMESTRAL,
-            FrecuenciaPago.TRIMESTRAL: TRIMESTRAL,
-            FrecuenciaPago.MENSUAL: MENSUAL,
-        }
-        return meses_por_frecuencia.get(self.frecuencia_pago_primas, 12)
+        return frecuencia_meses(self.frecuencia_pago_primas)
 
     def get_duracion_pagos(self) -> int:
         """Calcula la duración de pagos"""

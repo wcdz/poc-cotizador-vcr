@@ -74,3 +74,5 @@ site/
 # Archivos específicos de sistemas operativos
 Thumbs.db
 .DS_Store
+
+.analisis/
