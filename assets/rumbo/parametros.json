@@ -6,5 +6,12 @@
     "inflacion_anual": 0,
     "margen_solvencia": 0.05,
     "fondo_garantia": 0.35,
-    "ajuste_mortalidad": 150
+    "ajuste_mortalidad": 150,
+    "moneda": "SOLES",
+    "valor_dolar": 2.8125,
+    "valor_soles": 12.7370625702721,
+    "tiene_asistencia": false,
+    "costo_mensual_asistencia_funeraria": 0,
+    "moneda_poliza": 12.7370625702721,
+    "fraccionamiento_primas": 1
 }

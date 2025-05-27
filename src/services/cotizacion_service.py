@@ -12,6 +12,7 @@ from src.models.domain.parametros_calculados import (
 )
 from src.repositories.tasa_interes_repository import JsonTasaInteresRepository
 from src.services.expuestos_mes_service import ExpuestosMesService
+from src.services.gastos_service import GastosService
 
 
 class CotizadorService:
@@ -21,6 +22,7 @@ class CotizadorService:
         self.parametros_repository = JsonParametrosRepository()
         self.tasa_interes_repository = JsonTasaInteresRepository()
         self.expuestos_mes = ExpuestosMesService()
+        self.gastos_service = GastosService()
 
     def cotizar(self, cotizacion_input: CotizacionInput) -> CotizacionOutput:
         """
@@ -63,14 +65,22 @@ class CotizadorService:
         # Convertir el modelo de dominio a esquema de respuesta
         parametros_calculados = self._convertir_a_esquema(parametros_dominio)
 
-        expuestos_mes = self.expuestos_mes.calcular_proyeccion(
+        expuestos_mes = self.expuestos_mes.calcular_expuestos_mes(
             edad_actuarial=cotizacion_input.parametros.edad_actuarial,
             sexo=cotizacion_input.parametros.sexo,
             fumador=cotizacion_input.parametros.fumador,
             frecuencia_pago_primas=cotizacion_input.parametros.frecuencia_pago_primas,
             periodo_vigencia=periodo_vigencia,
             periodo_pago_primas=periodo_pago_primas,
-            ajuste_mortalidad=parametros_almacenados.ajuste_mortalidad
+            ajuste_mortalidad=parametros_almacenados.ajuste_mortalidad,
+        )
+
+        gastos = self.gastos_service.calcular_gastos(
+            periodo_vigencia=periodo_vigencia,
+            periodo_pago_primas=periodo_pago_primas,
+            prima=prima,
+            expuestos_mes=expuestos_mes,
+            frecuencia_pago_primas=cotizacion_input.parametros.frecuencia_pago_primas,
         )
 
         # Crear la respuesta base
@@ -80,6 +90,7 @@ class CotizadorService:
             parametros_almacenados=parametros_almacenados,
             parametros_calculados=parametros_calculados,
             expuestos_mes=expuestos_mes,
+            gastos=gastos,
         )
 
         # Añadir campos específicos según el producto
@@ -107,6 +118,15 @@ class CotizadorService:
         margen_solvencia = parametros_dict.get("margen_solvencia", 0.01)
         fondo_garantia = parametros_dict.get("fondo_garantia", 0.01)
         ajuste_mortalidad = parametros_dict.get("ajuste_mortalidad", 0.01)
+        moneda = parametros_dict.get("moneda", "SOLES")
+        valor_dolar = parametros_dict.get("valor_dolar", 0.01)
+        valor_soles = parametros_dict.get("valor_soles", 0.01)
+        tiene_asistencia = parametros_dict.get("tiene_asistencia", False)
+        costo_mensual_asistencia_funeraria = parametros_dict.get(
+            "costo_mensual_asistencia_funeraria", 0.01
+        )
+        moneda_poliza = parametros_dict.get("moneda_poliza", 0.01)
+        fraccionamiento_primas = parametros_dict.get("fraccionamiento_primas", 0.01)
 
         return ParametrosAlmacenadosSchema(
             gasto_adquisicion=gasto_adquisicion,
@@ -117,6 +137,13 @@ class CotizadorService:
             margen_solvencia=margen_solvencia,
             fondo_garantia=fondo_garantia,
             ajuste_mortalidad=ajuste_mortalidad,
+            moneda=moneda,
+            valor_dolar=valor_dolar,
+            valor_soles=valor_soles,
+            tiene_asistencia=tiene_asistencia,
+            costo_mensual_asistencia_funeraria=costo_mensual_asistencia_funeraria,
+            moneda_poliza=moneda_poliza,
+            fraccionamiento_primas=fraccionamiento_primas,
         )
 
     def _convertir_a_esquema(

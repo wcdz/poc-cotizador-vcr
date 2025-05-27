@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from src.models.domain.expuestos_mes import ExpuestosMesActuarial
+from src.models.domain.expuestos_mes import ExpuestosMes
 from src.models.domain.parametros_calculados import ParametrosCalculados
 from src.common.frecuencia_pago import FrecuenciaPago
 
@@ -29,4 +29,4 @@ class Gastos:
     periodo_pago_primas: int
     frecuencia_pago_primas: FrecuenciaPago  # Usar la enumeración
     prima: float
-    expuestos_mes: ExpuestosMesActuarial  # (vivos_inicio)
+    expuestos_mes: ExpuestosMes  # (vivos_inicio)

@@ -11,6 +11,7 @@ from src.core.constans import (
     MINIMO_PRIMA,
 )
 from src.models.schemas.expuestos_mes_schema import ProyeccionActuarialOutput
+from src.models.schemas.gastos_schema import Gastos
 
 
 class Moneda(str, Enum):
@@ -106,6 +107,13 @@ class ParametrosAlmacenados(BaseModel):
     margen_solvencia: float
     fondo_garantia: float
     ajuste_mortalidad: float
+    moneda: str
+    valor_dolar: float
+    valor_soles: float
+    tiene_asistencia: bool
+    costo_mensual_asistencia_funeraria: float
+    moneda_poliza: float
+    fraccionamiento_primas: float
 
 
 class ParametrosCalculados(BaseModel):
@@ -126,6 +134,7 @@ class CotizacionOutput(BaseModel):
     parametros_almacenados: ParametrosAlmacenados
     parametros_calculados: ParametrosCalculados
     expuestos_mes: ProyeccionActuarialOutput
+    gastos: Gastos
 
     # Campos opcionales específicos para cada producto
     porcentaje_devolucion: Optional[str] = None  # Para RUMBO

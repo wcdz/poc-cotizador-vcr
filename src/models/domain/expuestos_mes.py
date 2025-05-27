@@ -60,7 +60,7 @@ class ResultadoMensual:
 
 
 @dataclass
-class ExpuestosMesActuarial:
+class ExpuestosMes:
     """
     Modelo de dominio para cálculos actuariales basados en expuestos mes.
     Implementa la lógica actuarial para calcular vivos, fallecidos y caducados.
@@ -69,7 +69,7 @@ class ExpuestosMesActuarial:
     parametros: ParametrosActuariales
     resultados: List[ResultadoMensual] = field(default_factory=list)
 
-    def calcular_proyeccion(self) -> List[ResultadoMensual]:
+    def calcular_expuestos_mes(self) -> List[ResultadoMensual]:
         """
         Calcula la proyección de expuestos para un número determinado de meses
 
@@ -246,7 +246,7 @@ class ExpuestosMesActuarial:
             Diccionario con la reserva matemática total y desglosada por años
         """
         if not self.resultados:
-            self.calcular_proyeccion()
+            self.calcular_expuestos_mes()
 
         # Implementar aquí el cálculo de reserva matemática
         # Este es un cálculo complejo que depende de varios factores
@@ -270,7 +270,7 @@ class ExpuestosMesActuarial:
             Diccionario con el resumen de resultados
         """
         if not self.resultados:
-            self.calcular_proyeccion()
+            self.calcular_expuestos_mes()
 
         return {
             "vivos_inicial": self.resultados[0].vivos_inicio if self.resultados else 0,

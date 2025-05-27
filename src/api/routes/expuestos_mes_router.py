@@ -22,7 +22,7 @@ router = APIRouter()
 
 
 @router.post("/expuestos_mes")
-async def calcular_proyeccion_actuarial(datos: ProyeccionActuarialInput):
+async def calcular_expuestos_mes(datos: ProyeccionActuarialInput):
     """
     Calcula la proyección actuarial de expuestos para un conjunto de parámetros.
 
@@ -55,7 +55,7 @@ async def calcular_proyeccion_actuarial(datos: ProyeccionActuarialInput):
             )
 
         # Llamar al servicio
-        resultado = expuestos_mes_service.calcular_proyeccion(
+        resultado = expuestos_mes_service.calcular_expuestos_mes(
             edad_actuarial=datos.edad_actuarial,
             sexo=datos.sexo.value,
             fumador=datos.fumador,

@@ -4,6 +4,8 @@ from src.models.schemas.expuestos_mes_schema import ProyeccionActuarialOutput
 from src.models.schemas.gastos_schema import Gastos, ResultadoMensualGastos
 from decimal import Decimal
 from typing import Dict, List, Any
+from src.services.flujo_resultado_service import FlujoResultadoService
+from src.common.frecuencia_pago import FrecuenciaPago
 
 """
 Servicio para cálculos de gastos
@@ -18,7 +20,7 @@ class GastosService:
         self.parametros_dict = self.parametros_repository.get_parametros_by_producto(
             "rumbo"
         )
-        self.expuestos_mes = ExpuestosMesService()
+        self.flujo_resultado_service = FlujoResultadoService()
 
     def calcular_gastos(
         self,
@@ -26,15 +28,15 @@ class GastosService:
         periodo_pago_primas: int,
         prima: float,
         expuestos_mes: ProyeccionActuarialOutput,
+        frecuencia_pago_primas: FrecuenciaPago,
     ) -> Gastos:
         """
         Método para calcular gastos
         """
 
-        print(periodo_vigencia)
-        print(periodo_pago_primas)
-        print(prima)
-        
+        primas_recurrentes = self.flujo_resultado_service.calcular_primas_recurrentes(
+            expuestos_mes, periodo_pago_primas, frecuencia_pago_primas, prima
+        )
 
         # Este es un cálculo simplificado para ejemplo
         resultados_mensuales = []

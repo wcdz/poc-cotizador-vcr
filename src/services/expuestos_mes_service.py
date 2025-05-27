@@ -2,7 +2,7 @@ from typing import Dict, List, Any, Optional, Union
 from decimal import Decimal
 
 from src.models.domain.expuestos_mes import (
-    ExpuestosMesActuarial,
+    ExpuestosMes,
     ParametrosActuariales,
     FrecuenciaPago,
     ResultadoMensual,
@@ -25,7 +25,7 @@ class ExpuestosMesService:
             "rumbo"
         )
 
-    def calcular_proyeccion(
+    def calcular_expuestos_mes(
         self,
         edad_actuarial: int,
         sexo: str,
@@ -71,10 +71,10 @@ class ExpuestosMesService:
         )
 
         # Crear modelo de dominio
-        expuestos_actuarial = ExpuestosMesActuarial(parametros=parametros)
+        expuestos_actuarial = ExpuestosMes(parametros=parametros)
 
         # Calcular proyección
-        resultados = expuestos_actuarial.calcular_proyeccion()
+        resultados = expuestos_actuarial.calcular_expuestos_mes()
 
         # Obtener resumen
         resumen = expuestos_actuarial.obtener_resumen()
