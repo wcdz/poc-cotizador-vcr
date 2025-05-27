@@ -8,7 +8,6 @@ from src.models.domain.expuestos_mes import (
     ResultadoMensual,
 )
 from src.repositories.tabla_mortalidad_repository import Sexo, EstadoFumador
-from src.core.constans import MESES_PROYECCION
 from src.models.schemas.expuestos_mes_schema import (
     ResultadoMensualOutput,
     ResumenOutput,
@@ -35,7 +34,6 @@ class ExpuestosMesService:
         periodo_vigencia: int,
         periodo_pago_primas: int,
         ajuste_mortalidad: float,
-        meses_proyeccion: int = MESES_PROYECCION,
     ) -> Dict[str, Any]:
         """
         Realiza el cálculo de proyección de expuestos
@@ -76,7 +74,7 @@ class ExpuestosMesService:
         expuestos_actuarial = ExpuestosMesActuarial(parametros=parametros)
 
         # Calcular proyección
-        resultados = expuestos_actuarial.calcular_proyeccion(meses=meses_proyeccion)
+        resultados = expuestos_actuarial.calcular_proyeccion()
 
         # Obtener resumen
         resumen = expuestos_actuarial.obtener_resumen()

@@ -12,6 +12,7 @@ from src.repositories.tabla_mortalidad_repository import (
 )
 from src.repositories.caducidad_repository import caducidad_repository
 from src.helpers.caducidad_mensual import caducidad_mensual
+from src.utils.anios_meses import anios_meses
 
 
 class FrecuenciaPago(str, Enum):
@@ -32,7 +33,9 @@ class ParametrosActuariales:
     periodo_vigencia: int
     periodo_pago_primas: int
     ajuste_mortalidad: float
-    probabilidad_vivos_inicial: float = PROBABILIDAD_VIVOS  # Por defecto comienza con 100% de vivos
+    probabilidad_vivos_inicial: float = (
+        PROBABILIDAD_VIVOS  # Por defecto comienza con 100% de vivos
+    )
 
     def get_meses_frecuencia(self) -> int:
         """Obtiene la cantidad de meses según la frecuencia de pago"""
@@ -77,7 +80,7 @@ class ExpuestosMesActuarial:
     parametros: ParametrosActuariales
     resultados: List[ResultadoMensual] = field(default_factory=list)
 
-    def calcular_proyeccion(self, meses: int = 12) -> List[ResultadoMensual]:
+    def calcular_proyeccion(self) -> List[ResultadoMensual]:
         """
         Calcula la proyección de expuestos para un número determinado de meses
 
@@ -101,7 +104,9 @@ class ExpuestosMesActuarial:
             self.parametros.periodo_vigencia
         )
 
-        for mes in range(1, meses + 1):
+        meses_proyeccion = anios_meses(self.parametros.periodo_vigencia)
+
+        for mes in range(1, meses_proyeccion + 1):
             # Determinar año de póliza y edad actual
             anio_poliza = math.ceil(mes / 12)
             edad_actual = self.parametros.edad_actuarial + anio_poliza - 1
@@ -139,9 +144,11 @@ class ExpuestosMesActuarial:
                 vivos_despues_fallecidos=Decimal(str(vivos_despues_fallecidos)),
                 caducados=Decimal(str(caducados)),
                 vivos_final=Decimal(str(vivos_final)),
-                mortalidad_anual=Decimal(str(mortalidad_anual)),  
+                mortalidad_anual=Decimal(str(mortalidad_anual)),
                 mortalidad_mensual=Decimal(str(mortalidad_mensual)),
-                mortalidad_ajustada=Decimal(str(mortalidad_ajustada)),  # Mantener en formato "por mil"
+                mortalidad_ajustada=Decimal(
+                    str(mortalidad_ajustada)
+                ),  # Mantener en formato "por mil"
                 tasa_caducidad=Decimal(str(tasa_caducidad)),
             )
 

@@ -54,13 +54,6 @@ async def calcular_proyeccion_actuarial(datos: ProyeccionActuarialInput):
                 detail="El período de pago no puede ser mayor al período de vigencia",
             )
 
-        # Calcular meses_proyeccion automáticamente si no se proporciona
-        meses_proyeccion = datos.meses_proyeccion
-        if meses_proyeccion is None:
-            meses_proyeccion = datos.periodo_vigencia * 12
-            # Asegurar que no exceda el límite máximo
-            meses_proyeccion = min(meses_proyeccion, 600)
-
         # Llamar al servicio
         resultado = expuestos_mes_service.calcular_proyeccion(
             edad_actuarial=datos.edad_actuarial,
@@ -69,8 +62,7 @@ async def calcular_proyeccion_actuarial(datos: ProyeccionActuarialInput):
             frecuencia_pago_primas=datos.frecuencia_pago_primas.value,
             periodo_vigencia=datos.periodo_vigencia,
             periodo_pago_primas=datos.periodo_pago_primas,
-            ajuste_mortalidad=datos.ajuste_mortalidad,
-            meses_proyeccion=meses_proyeccion,
+            ajuste_mortalidad=datos.ajuste_mortalidad
         )
 
         # Validar con el modelo Pydantic

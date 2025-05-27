@@ -8,9 +8,7 @@ from src.core.constans import (
     EDAD_MAXIMA_PERMANENCIA,
     PERIODO_VIGENCIA_MINIMO,
     PERIODO_PAGO_PRIMAS_MINIMO,
-    MESES_PROYECCION_MINIMO,
-    MESES_PROYECCION_MAXIMO,
-    AJUSTE_MORTALIDAD_POR_DEFECTO,
+    AJUSTE_MORTALIDAD_POR_DEFECTO
 )
 
 
@@ -49,12 +47,6 @@ class ProyeccionActuarialInput(BaseModel):
         ge=PERIODO_PAGO_PRIMAS_MINIMO,
         le=PERIODO_PAGO_PRIMAS_MAXIMO,
         description="Período de pago de primas en años",
-    )
-    meses_proyeccion: Optional[int] = Field(
-        None,
-        ge=MESES_PROYECCION_MINIMO,
-        le=MESES_PROYECCION_MAXIMO,
-        description="Número de meses a proyectar (opcional, por defecto se calcula como periodo_vigencia * 12)",
     )
     ajuste_mortalidad: float = Field(
         AJUSTE_MORTALIDAD_POR_DEFECTO,
