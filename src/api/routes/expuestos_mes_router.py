@@ -21,7 +21,7 @@ class CustomJSONEncoder(json.JSONEncoder):
 router = APIRouter()
 
 
-@router.post("/proyeccion")
+@router.post("/expuestos_mes")
 async def calcular_proyeccion_actuarial(datos: ProyeccionActuarialInput):
     """
     Calcula la proyección actuarial de expuestos para un conjunto de parámetros.
