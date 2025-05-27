@@ -75,4 +75,5 @@ site/
 Thumbs.db
 .DS_Store
 
-.analisis/
+# Carpetas específicas del proyecto
+analisis/
