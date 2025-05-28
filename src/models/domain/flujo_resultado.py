@@ -34,7 +34,7 @@ class FlujoResultado:
                B9 (Mes poliza) (Iteracion) # ! [Ok]
 
                Parametros_Supuestos!$C$17 (Frecuencia elegida (MENSUAL, TRIMESTRAL, SEMESTRAL, ANUAL)) : input #! [ok]
-
+t
            Parametros_Supuestos!$C$22 (prima) : input #! [ok]
 
            'Expuestos Mes'!AB2 (vivos_inicio) : input, ya lo calculamos en expuestos_mes_service #! [ok]

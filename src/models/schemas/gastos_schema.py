@@ -35,8 +35,9 @@ class ResultadoMensualGastos(BaseModel):
     """
     mes: int
     anio_poliza: int
-    gasto_mantenimiento_prima: str
-    gasto_mantenimiento_fijo: str
+    gasto_mantenimiento_prima_co: str
+    gastos_mantenimiento_moneda_poliza: str
+    gasto_mantenimiento_fijo_poliza_anual: str
     factor_inflacion: str
     gasto_mantenimiento_total: str
 
@@ -45,4 +46,3 @@ class Gastos(BaseModel):
     Modelo de salida para gastos
     """
     resultados_mensuales: List[ResultadoMensualGastos]
-    resumen: Dict[str, str]

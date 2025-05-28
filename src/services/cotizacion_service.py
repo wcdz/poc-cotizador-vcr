@@ -81,6 +81,13 @@ class CotizadorService:
             prima=prima,
             expuestos_mes=expuestos_mes,
             frecuencia_pago_primas=cotizacion_input.parametros.frecuencia_pago_primas,
+            mantenimiento_poliza=parametros_calculados.mantenimiento_poliza,
+            moneda=parametros_almacenados.moneda,
+            valor_dolar=parametros_almacenados.valor_dolar,
+            valor_soles=parametros_almacenados.valor_soles,
+            tiene_asistencia=parametros_almacenados.tiene_asistencia,
+            costo_mensual_asistencia_funeraria=parametros_almacenados.costo_mensual_asistencia_funeraria,
+            inflacion_mensual=parametros_calculados.inflacion_mensual,
         )
 
         # Crear la respuesta base

@@ -1,7 +1,11 @@
 from src.repositories.parametros_repository import JsonParametrosRepository
 from src.services.expuestos_mes_service import ExpuestosMesService
 from src.models.schemas.expuestos_mes_schema import ProyeccionActuarialOutput
-from src.models.schemas.gastos_schema import Gastos, ResultadoMensualGastos
+from src.models.schemas.gastos_schema import (
+    Gastos as GastosSchema,
+    ResultadoMensualGastos,
+)
+from src.models.domain.gastos import Gastos
 from decimal import Decimal
 from typing import Dict, List, Any
 from src.services.flujo_resultado_service import FlujoResultadoService
@@ -28,81 +32,152 @@ class GastosService:
         periodo_pago_primas: int,
         prima: float,
         expuestos_mes: ProyeccionActuarialOutput,
-        frecuencia_pago_primas: FrecuenciaPago,
-    ) -> Gastos:
+        frecuencia_pago_primas: FrecuenciaPago = FrecuenciaPago.ANUAL,
+        mantenimiento_poliza: float = 0.0,
+        inflacion_mensual: float = 0.0,
+        moneda: str = "SOLES",
+        valor_dolar: float = 0.0,
+        valor_soles: float = 0.0,
+        tiene_asistencia: bool = False,
+        costo_mensual_asistencia_funeraria: float = 0.0,
+        moneda_poliza: float = 0.0,
+    ) -> Dict:
         """
         Método para calcular gastos
         """
+
+        # Crear objeto del dominio
+        gastos_domain = Gastos(
+            periodo_vigencia=periodo_vigencia,
+            periodo_pago_primas=periodo_pago_primas,
+            frecuencia_pago_primas=frecuencia_pago_primas,
+            prima=prima,
+            mantenimiento_poliza=mantenimiento_poliza,
+            inflacion_mensual=inflacion_mensual,
+            moneda=moneda,
+            valor_dolar=valor_dolar,
+            valor_soles=valor_soles,
+            tiene_asistencia=tiene_asistencia,
+            costo_mensual_asistencia_funeraria=costo_mensual_asistencia_funeraria,
+            moneda_poliza=moneda_poliza,
+            expuestos_mes=expuestos_mes,
+        )
 
         primas_recurrentes = self.flujo_resultado_service.calcular_primas_recurrentes(
             expuestos_mes, periodo_pago_primas, frecuencia_pago_primas, prima
         )
 
-        # Este es un cálculo simplificado para ejemplo
-        resultados_mensuales = []
+        # print("primas_recurrentes => ", primas_recurrentes) # * OK
 
-        # Procesar los resultados mensuales de expuestos
-        for i, resultado in enumerate(expuestos_mes["resultados_mensuales"]):
-            mes = resultado["mes"]
-            anio_poliza = resultado["anio_poliza"]
-
-            # Cálculos simplificados para ejemplo
-            gasto_mantenimiento_prima = str(Decimal(str(prima * 0.01)))
-            gasto_mantenimiento_fijo = str(
-                Decimal(str(10.0))
-            )  # Valor fijo para ejemplo
-            factor_inflacion = str(
-                Decimal(str(1.0 + (anio_poliza - 1) * 0.02))
-            )  # Incremento del 2% por año
-            gasto_total = str(
-                Decimal(
-                    str(
-                        float(gasto_mantenimiento_prima)
-                        + float(gasto_mantenimiento_fijo)
-                    )
-                )
-                * Decimal(factor_inflacion)
+        # F2 OK
+        gasto_mantenimiento_prima_co = (
+            gastos_domain.calcular_gasto_mantenimiento_prima_co(
+                primas_recurrentes, mantenimiento_poliza
             )
+        )
 
-            # Crear resultado mensual
+        # print("gasto_mantenimiento_prima_co => ", gasto_mantenimiento_prima_co) # * OK
+
+        # * G2 - requiere
+        gastos_mantenimiento_moneda_poliza = (
+            gastos_domain.calcular_gastos_mantenimiento_moneda_poliza(
+                moneda,
+                valor_dolar,
+                valor_soles,
+                tiene_asistencia,
+                costo_mensual_asistencia_funeraria,
+            )
+        )
+
+        # print(
+        #     "gastos_mantenimiento_moneda_poliza => ", gastos_mantenimiento_moneda_poliza
+        # )
+
+        # * G2 - final
+        gasto_mantenimiento_fijo_poliza_anual = (
+            gastos_domain.calcular_gastos_mantenimiento_fijo_poliza_anual(
+                expuestos_mes, gastos_mantenimiento_moneda_poliza
+            )
+        )
+
+        # print(
+        #     "gasto_mantenimiento_fijo_poliza_anual => ",
+        #     gasto_mantenimiento_fijo_poliza_anual,
+        # )
+
+        # * H2
+        factor_inflacion = gastos_domain.calcular_factor_inflacion(
+            gasto_mantenimiento_prima_co,
+            gasto_mantenimiento_fijo_poliza_anual,
+            inflacion_mensual,
+        )
+
+        # print("factor_inflacion => ", factor_inflacion)
+
+        # * I
+        gasto_mantenimiento_total = gastos_domain.calcular_gasto_mantenimiento_total(
+            gasto_mantenimiento_prima_co,
+            gasto_mantenimiento_fijo_poliza_anual,
+            factor_inflacion,
+            periodo_vigencia,
+        )
+
+        # print("gasto_mantenimiento_total => ", gasto_mantenimiento_total)
+
+        print("gasto_mantenimiento_prima_co => ", gasto_mantenimiento_prima_co)
+        print(
+            "gastos_mantenimiento_moneda_poliza => ", gastos_mantenimiento_moneda_poliza
+        )
+        print(
+            "gasto_mantenimiento_fijo_poliza_anual => ",
+            gasto_mantenimiento_fijo_poliza_anual,
+        )
+        print("factor_inflacion => ", factor_inflacion)
+        print("gasto_mantenimiento_total => ", gasto_mantenimiento_total)
+
+        resultados_mensuales = self._formatear_resultados(
+            gasto_mantenimiento_prima_co,
+            gastos_mantenimiento_moneda_poliza,
+            gasto_mantenimiento_fijo_poliza_anual,
+            factor_inflacion,
+            gasto_mantenimiento_total,
+        )
+        return {"resultados_mensuales": resultados_mensuales}
+
+    def _formatear_resultados(
+        self,
+        gasto_mantenimiento_prima_co: List[float],
+        gastos_mantenimiento_moneda_poliza: List[float],
+        gasto_mantenimiento_fijo_poliza_anual: List[float],
+        factor_inflacion: List[float],
+        gasto_mantenimiento_total: List[float],
+    ) -> List[Dict[str, Any]]:
+
+        # Crear resultado mensual
+        resultados_formateados = []
+        for i, resultado in enumerate(gasto_mantenimiento_prima_co):
+            mes = i + 1
+            anio_poliza = 1
+            _gasto_mantenimiento_prima_co = str(Decimal(str(resultado)))
+            _gasto_mantenimiento_moneda_poliza = str(gastos_mantenimiento_moneda_poliza)
+            _gasto_mantenimiento_fijo_poliza_anual = str(
+                Decimal(str(gasto_mantenimiento_fijo_poliza_anual[i]))
+            )
+            _factor_inflacion = str(Decimal(str(factor_inflacion[i])))
+            _gasto_mantenimiento_total = str(Decimal(str(gasto_mantenimiento_total[i])))
+
             resultado_mensual = ResultadoMensualGastos(
                 mes=mes,
                 anio_poliza=anio_poliza,
-                gasto_mantenimiento_prima=gasto_mantenimiento_prima,
-                gasto_mantenimiento_fijo=gasto_mantenimiento_fijo,
-                factor_inflacion=factor_inflacion,
-                gasto_mantenimiento_total=gasto_total,
+                gasto_mantenimiento_prima_co=_gasto_mantenimiento_prima_co,
+                gastos_mantenimiento_moneda_poliza=_gasto_mantenimiento_moneda_poliza,
+                gasto_mantenimiento_fijo_poliza_anual=_gasto_mantenimiento_fijo_poliza_anual,
+                factor_inflacion=_factor_inflacion,
+                gasto_mantenimiento_total=_gasto_mantenimiento_total,
             )
 
-            resultados_mensuales.append(resultado_mensual.model_dump())
-
-        # Crear resumen
-        resumen = {
-            "gasto_total": str(
-                Decimal(
-                    sum(
-                        float(r["gasto_mantenimiento_total"])
-                        for r in resultados_mensuales
-                    )
-                )
-            ),
-            "gasto_promedio_mensual": str(
-                Decimal(
-                    sum(
-                        float(r["gasto_mantenimiento_total"])
-                        for r in resultados_mensuales
-                    )
-                    / len(resultados_mensuales)
-                    if resultados_mensuales
-                    else 0
-                )
-            ),
-        }
-
-        # Retornar el objeto Gastos
-        return Gastos(
-            resultados_mensuales=resultados_mensuales, resumen=resumen
-        ).model_dump()
+            resultados_formateados.append(resultado_mensual.model_dump())
+        return resultados_formateados
 
 
 # Instancia global del servicio
