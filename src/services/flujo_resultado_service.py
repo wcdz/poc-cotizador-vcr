@@ -26,5 +26,9 @@ class FlujoResultadoService:
         )
 
         return self.flujo_resultado.calcular_primas_recurrentes(
-            expuestos_mes, periodo_pago_primas, frecuencia_pago_primas, prima, fraccionamiento_primas
+            expuestos_mes,
+            periodo_pago_primas,
+            frecuencia_pago_primas,
+            prima,
+            fraccionamiento_primas,
         )

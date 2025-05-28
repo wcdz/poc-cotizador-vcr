@@ -12,28 +12,10 @@ from src.core.constans import (
 )
 from src.models.schemas.expuestos_mes_schema import ProyeccionActuarialOutput
 from src.models.schemas.gastos_schema import Gastos
-
-
-class Moneda(str, Enum):
-    PEN = "PEN"
-    USD = "USD"
-
-
-class Sexo(str, Enum):
-    MASCULINO = "M"
-    FEMENINO = "F"
-
-
-class FrecuenciaPago(str, Enum):
-    ANUAL = "ANUAL"
-    SEMESTRAL = "SEMESTRAL"
-    TRIMESTRAL = "TRIMESTRAL"
-    MENSUAL = "MENSUAL"
-
-
-class TipoProducto(str, Enum):
-    RUMBO = "RUMBO"
-    ENDOSOS = "ENDOSOS"
+from src.common.moneda import Moneda
+from src.common.frecuencia_pago import FrecuenciaPago
+from src.common.sexo import Sexo
+from src.common.tipo_producto import TipoProducto
 
 
 # Parámetros base compartidos entre productos

@@ -1,23 +1,23 @@
 from typing import Optional, List, Dict
 from pydantic import BaseModel, Field
-from enum import Enum
-from src.models.schemas.expuestos_mes_schema import ProyeccionActuarialOutput
 from src.common.frecuencia_pago import FrecuenciaPago
-
-class Moneda(str, Enum):
-    SOLES = "SOLES"
-    DOLARES = "DOLARES"
+from src.common.moneda import Moneda
 
 class GastosInput(BaseModel):
     """
     Modelo de entrada para cálculo de gastos
     """
+
     periodo_vigencia: int = Field(..., description="Periodo de vigencia en años")
-    periodo_pago_primas: int = Field(..., description="Periodo de pago de primas en años")
+    periodo_pago_primas: int = Field(
+        ..., description="Periodo de pago de primas en años"
+    )
     moneda: Moneda = Field(..., description="Moneda (SOLES o DOLARES)")
-    frecuencia_pago_primas: FrecuenciaPago = Field(..., description="Frecuencia de pago de primas")
+    frecuencia_pago_primas: FrecuenciaPago = Field(
+        ..., description="Frecuencia de pago de primas"
+    )
     prima: float = Field(..., description="Prima del seguro")
-    
+
     class Config:
         schema_extra = {
             "example": {
@@ -25,14 +25,16 @@ class GastosInput(BaseModel):
                 "periodo_pago_primas": 10,
                 "moneda": "SOLES",
                 "frecuencia_pago_primas": "ANUAL",
-                "prima": 1000.0
+                "prima": 1000.0,
             }
         }
+
 
 class ResultadoMensualGastos(BaseModel):
     """
     Resultado mensual del cálculo de gastos
     """
+
     mes: int
     anio_poliza: int
     gasto_mantenimiento_prima_co: str
@@ -41,8 +43,10 @@ class ResultadoMensualGastos(BaseModel):
     factor_inflacion: str
     gasto_mantenimiento_total: str
 
+
 class Gastos(BaseModel):
     """
     Modelo de salida para gastos
     """
+
     resultados_mensuales: List[ResultadoMensualGastos]
