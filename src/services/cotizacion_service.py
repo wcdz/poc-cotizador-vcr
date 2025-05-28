@@ -13,6 +13,7 @@ from src.models.domain.parametros_calculados import (
 from src.repositories.tasa_interes_repository import JsonTasaInteresRepository
 from src.services.expuestos_mes_service import ExpuestosMesService
 from src.services.gastos_service import GastosService
+from src.services.flujo_resultado_service import FlujoResultadoService
 
 
 class CotizadorService:
@@ -23,6 +24,7 @@ class CotizadorService:
         self.tasa_interes_repository = JsonTasaInteresRepository()
         self.expuestos_mes = ExpuestosMesService()
         self.gastos_service = GastosService()
+        self.flujo_resultado_service = FlujoResultadoService()
 
     def cotizar(self, cotizacion_input: CotizacionInput) -> CotizacionOutput:
         """
@@ -90,6 +92,15 @@ class CotizadorService:
             inflacion_mensual=parametros_calculados.inflacion_mensual,
         )
 
+        primas_recurrentes = self.flujo_resultado_service.calcular_primas_recurrentes(
+            expuestos_mes=expuestos_mes,
+            periodo_pago_primas=periodo_pago_primas,
+            frecuencia_pago_primas=cotizacion_input.parametros.frecuencia_pago_primas,
+            prima=prima,
+        )
+
+        flujo_resultado = {"primas_recurrentes": primas_recurrentes}
+
         # Crear la respuesta base
         respuesta = CotizacionOutput(
             producto=cotizacion_input.producto,
@@ -98,6 +109,7 @@ class CotizadorService:
             parametros_calculados=parametros_calculados,
             expuestos_mes=expuestos_mes,
             gastos=gastos,
+            flujo_resultado=flujo_resultado,
         )
 
         # Añadir campos específicos según el producto

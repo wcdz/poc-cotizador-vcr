@@ -16,6 +16,7 @@ from src.common.moneda import Moneda
 from src.common.frecuencia_pago import FrecuenciaPago
 from src.common.sexo import Sexo
 from src.common.tipo_producto import TipoProducto
+from src.models.schemas.flujo_resultado_schema import FlujoResultado
 
 
 # Parámetros base compartidos entre productos
@@ -117,7 +118,7 @@ class CotizacionOutput(BaseModel):
     parametros_calculados: ParametrosCalculados
     expuestos_mes: ProyeccionActuarialOutput
     gastos: Gastos
-
+    flujo_resultado: FlujoResultado
     # Campos opcionales específicos para cada producto
     porcentaje_devolucion: Optional[str] = None  # Para RUMBO
     prima: Optional[str] = None  # Para ENDOSOS

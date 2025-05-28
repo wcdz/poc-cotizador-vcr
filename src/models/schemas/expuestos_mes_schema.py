@@ -8,20 +8,10 @@ from src.core.constans import (
     EDAD_MAXIMA_PERMANENCIA,
     PERIODO_VIGENCIA_MINIMO,
     PERIODO_PAGO_PRIMAS_MINIMO,
-    AJUSTE_MORTALIDAD_POR_DEFECTO
+    AJUSTE_MORTALIDAD_POR_DEFECTO,
 )
-
-
-class SexoEnum(str, Enum):
-    MASCULINO = "M"
-    FEMENINO = "F"
-
-
-class FrecuenciaPagoEnum(str, Enum):
-    ANUAL = "ANUAL"
-    SEMESTRAL = "SEMESTRAL"
-    TRIMESTRAL = "TRIMESTRAL"
-    MENSUAL = "MENSUAL"
+from src.common.sexo import Sexo
+from src.common.frecuencia_pago import FrecuenciaPago
 
 
 class ProyeccionActuarialInput(BaseModel):
@@ -31,9 +21,9 @@ class ProyeccionActuarialInput(BaseModel):
         le=EDAD_MAXIMA_PERMANENCIA,
         description="Edad actuarial del asegurado",
     )
-    sexo: SexoEnum = Field(..., description="Sexo del asegurado (M/F)")
+    sexo: Sexo = Field(..., description="Sexo del asegurado (M/F)")
     fumador: bool = Field(..., description="Si el asegurado es fumador o no")
-    frecuencia_pago_primas: FrecuenciaPagoEnum = Field(
+    frecuencia_pago_primas: FrecuenciaPago = Field(
         ..., description="Frecuencia de pago de primas"
     )
     periodo_vigencia: int = Field(

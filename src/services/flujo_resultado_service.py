@@ -32,3 +32,6 @@ class FlujoResultadoService:
             prima,
             fraccionamiento_primas,
         )
+        
+    def _formatear_resultados(self, resultados: list[float]) -> list[str]:
+        return [str(resultado) for resultado in resultados]

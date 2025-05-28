@@ -124,17 +124,6 @@ class GastosService:
 
         # print("gasto_mantenimiento_total => ", gasto_mantenimiento_total)
 
-        print("gasto_mantenimiento_prima_co => ", gasto_mantenimiento_prima_co)
-        print(
-            "gastos_mantenimiento_moneda_poliza => ", gastos_mantenimiento_moneda_poliza
-        )
-        print(
-            "gasto_mantenimiento_fijo_poliza_anual => ",
-            gasto_mantenimiento_fijo_poliza_anual,
-        )
-        print("factor_inflacion => ", factor_inflacion)
-        print("gasto_mantenimiento_total => ", gasto_mantenimiento_total)
-
         resultados_mensuales = self._formatear_resultados(
             gasto_mantenimiento_prima_co,
             gastos_mantenimiento_moneda_poliza,
