@@ -32,6 +32,11 @@ class FlujoResultadoService:
             prima,
             fraccionamiento_primas,
         )
-        
+
+    def calcular_siniestros(
+        self, expuestos_mes: ProyeccionActuarialOutput, suma_asegurada: float
+    ):
+        return self.flujo_resultado.calcular_siniestros(expuestos_mes, suma_asegurada)
+
     def _formatear_resultados(self, resultados: list[float]) -> list[str]:
         return [str(resultado) for resultado in resultados]
