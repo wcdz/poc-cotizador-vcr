@@ -2,6 +2,7 @@ from src.models.schemas.expuestos_mes_schema import ProyeccionActuarialOutput
 from src.models.domain.flujo_resultado import FlujoResultado
 from src.repositories.parametros_repository import JsonParametrosRepository
 from src.common.frecuencia_pago import FrecuenciaPago
+from typing import List
 
 
 class FlujoResultadoService:
@@ -35,8 +36,11 @@ class FlujoResultadoService:
 
     def calcular_siniestros(
         self, expuestos_mes: ProyeccionActuarialOutput, suma_asegurada: float
-    ):
+    ) -> List[float]:
         return self.flujo_resultado.calcular_siniestros(expuestos_mes, suma_asegurada)
+
+    def calcular_gastos_mantenimiento(self, gastos_mantenimiento: float) -> List[float]:
+        return self.flujo_resultado.calcular_gastos_mantenimiento(gastos_mantenimiento)
 
     def _formatear_resultados(self, resultados: list[float]) -> list[str]:
         return [str(resultado) for resultado in resultados]

@@ -85,3 +85,9 @@ class FlujoResultado:
             siniestros.append(-suma_asegurada * fallecidos)
 
         return siniestros
+
+    def calcular_gastos_mantenimiento(self, gastos_mantenimiento: float) -> List[float]:
+        return [
+            float(_.get("gasto_mantenimiento_total", 0))
+            for _ in gastos_mantenimiento.get("resultados_mensuales", [])
+        ]
