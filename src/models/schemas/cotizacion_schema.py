@@ -45,6 +45,7 @@ class ParametrosBase(BaseModel):
     sexo: Sexo
     frecuencia_pago_primas: FrecuenciaPago
     fumador: bool = Field(..., description="Indica si el asegurado es fumador")
+    asistencia: bool = Field(..., description="Indica si el asegurado tiene asistencia")
 
 
 # Parámetros específicos para RUMBO
@@ -97,8 +98,8 @@ class ParametrosAlmacenados(BaseModel):
     costo_mensual_asistencia_funeraria: float
     moneda_poliza: float
     fraccionamiento_primas: float
-
-
+    comision: float
+    costo_asistencia_funeraria: float
 class ParametrosCalculados(BaseModel):
     adquisicion_fijo_poliza: float
     mantenimiento_poliza: float

@@ -4,6 +4,7 @@ from src.models.domain.parametros_calculados import ParametrosCalculados
 from src.common.frecuencia_pago import FrecuenciaPago
 from src.models.schemas.expuestos_mes_schema import ProyeccionActuarialOutput
 from src.utils.frecuencia_meses import frecuencia_meses
+from src.utils.anios_meses import anios_meses
 from typing import List
 
 
@@ -91,3 +92,91 @@ class FlujoResultado:
             float(_.get("gasto_mantenimiento_total", 0))
             for _ in gastos_mantenimiento.get("resultados_mensuales", [])
         ]
+
+    def calcular_comision(
+        self,
+        primas_recurrentes: List[float],
+        asistencia: bool,
+        frecuencia_pago_primas: int,
+        costo_asistencia_funeraria: float,
+        expuestos_mes: dict,
+        comision: float,
+    ) -> List[float]:
+        """
+        Calcula la comisión mensual, ajustando por asistencia funeraria si corresponde.
+        Fórmula:
+        Comisión = -(prima - ajuste_asistencia) * comisión
+        """
+        """
+        Flujo y Resultado'!G9 (Comision) = -( F9 - SI(Parametros_Supuestos!$C$33="si"; C9 * Parametros_Supuestos!$C$17 * Parametros_Supuestos!$C$36 * 'Expuestos Mes'!AB2 ; 0)) * BUSCARV(A9;Parametros_Supuestos!$E$5 : $H$200; 3;0)
+
+          F9 # ! input [primas_recurrentes
+
+          Parametros_Supuestos!$C$33 # ! input [asistencia]
+
+          C9 (Validador de Pago de Primas) = SI(( B9 - 1 ) / Parametros_Supuestos!$C$17 = ENTERO((B9-1)/Parametros_Supuestos!$C$17);1;0) # * SE CALCULA MES A MES   
+
+          Parametros_Supuestos!$C$17 (Frecuencia elegida (MENSUAL, TRIMESTRAL, SEMESTRAL, ANUAL)) : input #! [ok]
+
+          Parametros_Supuestos!$C$36 (Costo Mensual en US$  Asistencia Funeraria) : input #! [ok] null
+
+          'Expuestos Mes'!AB2 (Vivos Inicio) : input, ya lo calculamos en expuestos_mes_service #! [ok]
+
+          A9 (Año Poliza) # * MES POLIZA PERIODO * 12
+
+          Parametros_Supuestos!$E$5 # * COMISIONES INPUT [OK]
+        """
+        resultados_mensuales = expuestos_mes.get("resultados_mensuales", [])
+        comisiones = []
+
+        for idx, prima in enumerate(primas_recurrentes):
+            vivos_inicio = 0
+            if idx < len(resultados_mensuales):
+                vivos_inicio = float(resultados_mensuales[idx].get("vivos_inicio", 0))
+
+            mes_poliza = idx + 1
+
+            frecuencia_meses_valor = frecuencia_meses(frecuencia_pago_primas)
+            # calcular validador pago primas mes a mes
+            if ((mes_poliza - 1) % frecuencia_meses_valor) == 0:
+                validador_pago_primas = 1
+            else:
+                validador_pago_primas = 0
+
+            ajuste_asistencia = 0
+            if asistencia:
+                ajuste_asistencia = (
+                    validador_pago_primas
+                    * frecuencia_pago_primas
+                    * costo_asistencia_funeraria
+                    * vivos_inicio
+                )
+
+            comision_mes = -(prima - ajuste_asistencia) * comision
+            comisiones.append(comision_mes)
+
+        return comisiones
+
+    def calcular_gastos_adquisicion(self, gasto_adquisicion: float) -> List[float]:
+        """
+        Calcula la lista de gastos de adquisición para cada periodo.
+
+        La fórmula base es tomada de la celda 'Flujo y Resultado'!H9,
+        que corresponde al valor constante en Gastos!E2.
+
+        Gastos!E2 representa el gasto fijo de adquisición por póliza en soles,
+        definido en Parametros_Supuestos!C40, que es un valor constante (por ejemplo, 1176).
+        A partir del segundo periodo, el gasto de adquisición es considerado cero.
+
+        Parámetros:
+        ----------
+        gasto_adquisicion : float
+            Valor fijo del gasto de adquisición por póliza para el primer periodo.
+
+        Retorna:
+        --------
+        List[float]
+            Lista con los gastos de adquisición por periodo,
+            donde el primer elemento es gasto_adquisicion y el resto son ceros.
+        """
+        return gasto_adquisicion

@@ -13,5 +13,7 @@
     "tiene_asistencia": false,
     "costo_mensual_asistencia_funeraria": 0,
     "moneda_poliza": 12.7370625702721,
-    "fraccionamiento_primas": 1
+    "fraccionamiento_primas": 1,
+    "comision": 0,
+    "costo_asistencia_funeraria": 0
 }

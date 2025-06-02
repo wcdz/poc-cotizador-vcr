@@ -39,8 +39,32 @@ class FlujoResultadoService:
     ) -> List[float]:
         return self.flujo_resultado.calcular_siniestros(expuestos_mes, suma_asegurada)
 
+    def calcular_rescates(self) -> List[float]:
+        pass
+
     def calcular_gastos_mantenimiento(self, gastos_mantenimiento: float) -> List[float]:
         return self.flujo_resultado.calcular_gastos_mantenimiento(gastos_mantenimiento)
+
+    def calcular_comision(
+        self,
+        primas_recurrentes: List[float],
+        asistencia: bool,
+        frecuencia_pago_primas: FrecuenciaPago,
+        costo_asistencia_funeraria: float,
+        expuestos_mes: ProyeccionActuarialOutput,
+        comision: float,
+    ) -> List[float]:
+        return self.flujo_resultado.calcular_comision(
+            primas_recurrentes,
+            asistencia,
+            frecuencia_pago_primas,
+            costo_asistencia_funeraria,
+            expuestos_mes,
+            comision,
+        )
+
+    def calcular_gasto_adquisicion(self, gasto_adquisicion: float):
+        return self.flujo_resultado.calcular_gastos_adquisicion(gasto_adquisicion)
 
     def _formatear_resultados(self, resultados: list[float]) -> list[str]:
         return [str(resultado) for resultado in resultados]
