@@ -1,17 +1,21 @@
 from src.models.schemas.expuestos_mes_schema import ProyeccionActuarialOutput
 from src.models.domain.flujo_resultado import FlujoResultado
 from src.repositories.parametros_repository import JsonParametrosRepository
+from src.repositories.devolucion_repository import JsonDevolucionRepository
 from src.common.frecuencia_pago import FrecuenciaPago
 from typing import List
+from src.services.reserva_service import ReservaService
 
 
 class FlujoResultadoService:
     def __init__(self):
         self.flujo_resultado = FlujoResultado()
         self.parametros_repository = JsonParametrosRepository()
+        self.devolucion_repository = JsonDevolucionRepository()
         self.parametros_dict = self.parametros_repository.get_parametros_by_producto(
             "rumbo"
         )
+        self.reserva = ReservaService()
 
     # Orquestacion para gastos
     def calcular_primas_recurrentes(
@@ -39,8 +43,18 @@ class FlujoResultadoService:
     ) -> List[float]:
         return self.flujo_resultado.calcular_siniestros(expuestos_mes, suma_asegurada)
 
-    def calcular_rescates(self) -> List[float]:
-        pass
+    def calcular_rescates(
+        self,
+        expuestos_mes: ProyeccionActuarialOutput,
+        periodo_vigencia: int,
+        prima: float,
+        fraccionamiento_primas: float,
+    ) -> List[float]:
+        # Ya no necesitamos obtener los datos de devolución aquí
+        # Ya que ReservaService lo hace internamente
+        return self.reserva.calcular_ajuste_devolucion_anticipada(
+            expuestos_mes, periodo_vigencia, prima, fraccionamiento_primas
+        )
 
     def calcular_gastos_mantenimiento(self, gastos_mantenimiento: float) -> List[float]:
         return self.flujo_resultado.calcular_gastos_mantenimiento(gastos_mantenimiento)
