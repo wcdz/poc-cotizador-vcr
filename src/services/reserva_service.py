@@ -65,6 +65,23 @@ class ReservaService:
             primas_recurrentes,
         )
 
+    def calcular_rescate(
+        self,
+        periodo_vigencia: int,
+        prima: float,
+        fraccionamiento_primas: float,
+        porcentaje_devolucion: float,
+    ):
+        # Obtener los datos de devolución desde el repositorio
+        devolucion = self.devolucion_repository.get_devolucion_data()
+        return self.reserva.calcular_rescate(
+            periodo_vigencia,
+            prima,
+            fraccionamiento_primas,
+            devolucion,
+            porcentaje_devolucion,
+        )
+
     def calcular_saldo_reserva(
         self,
         flujo_pasivo: list[float],
@@ -81,21 +98,4 @@ class ReservaService:
                 float(item["vivos_inicio"])
                 for item in expuestos_mes.get("resultados_mensuales", [])
             ],
-        )
-
-    def calcular_rescate(
-        self,
-        periodo_vigencia: int,
-        prima: float,
-        fraccionamiento_primas: float,
-        porcentaje_devolucion: float,
-    ):
-        # Obtener los datos de devolución desde el repositorio
-        devolucion = self.devolucion_repository.get_devolucion_data()
-        return self.reserva.calcular_rescate(
-            periodo_vigencia,
-            prima,
-            fraccionamiento_primas,
-            devolucion,
-            porcentaje_devolucion,
         )
