@@ -16,6 +16,11 @@ class ParametrosReserva:
 class Reserva:
     """Modelo de dominio para la reserva"""
 
+    def calcular_moce_saldo_reserva(
+        self, saldo_reserva: list[float], moce: list[float]
+    ) -> list[float]:
+        return [m + s for m, s in zip(moce, saldo_reserva)]
+
     def calcular_moce(
         self,
         tasa_costo_capital_mensual: float,
