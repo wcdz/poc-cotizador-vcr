@@ -46,14 +46,13 @@ class FlujoResultadoService:
     def calcular_rescates(
         self,
         expuestos_mes: ProyeccionActuarialOutput,
-        periodo_vigencia: int,
-        prima: float,
-        fraccionamiento_primas: float,
+        rescate: list[float],
     ) -> List[float]:
         # Ya no necesitamos obtener los datos de devolución aquí
         # Ya que ReservaService lo hace internamente
         return self.reserva.calcular_ajuste_devolucion_anticipada(
-            expuestos_mes, periodo_vigencia, prima, fraccionamiento_primas
+            expuestos_mes,
+            rescate,
         )
 
     def calcular_gastos_mantenimiento(self, gastos_mantenimiento: float) -> List[float]:
