@@ -103,6 +103,8 @@ class ParametrosAlmacenados(BaseModel):
     fraccionamiento_primas: float
     comision: float
     costo_asistencia_funeraria: float
+
+
 class ParametrosCalculados(BaseModel):
     adquisicion_fijo_poliza: float
     mantenimiento_poliza: float
