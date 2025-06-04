@@ -40,21 +40,11 @@ class ReservaService:
     def calcular_ajuste_devolucion_anticipada(
         self,
         expuestos_mes: ExpuestosMes,
-        periodo_vigencia: int,
-        prima: float,
-        fraccionamiento_primas: float,
-        porcentaje_devolucion: float,
+        rescate: list[float],
     ):
-        # Obtener los datos de devolución desde el repositorio
-        devolucion = self.devolucion_repository.get_devolucion_data()
-
         return self.reserva.calcular_ajuste_devolucion_anticipada(
             expuestos_mes,
-            periodo_vigencia,
-            prima,
-            fraccionamiento_primas,
-            devolucion,
-            porcentaje_devolucion,
+            rescate,
         )
 
     def calcular_flujo_pasivo(
@@ -73,4 +63,39 @@ class ReservaService:
             list(map(lambda x: -x, comision)),
             -gastos_adquisicion,
             primas_recurrentes,
+        )
+
+    def calcular_saldo_reserva(
+        self,
+        flujo_pasivo: list[float],
+        tasa_interes_mensual: float,
+        rescate: list[float],
+        expuestos_mes: ExpuestosMes,
+    ):
+
+        return self.reserva.calcular_saldo_reserva(
+            flujo_pasivo,
+            tasa_interes_mensual,
+            rescate,
+            vivos_inicio=[
+                float(item["vivos_inicio"])
+                for item in expuestos_mes.get("resultados_mensuales", [])
+            ],
+        )
+
+    def calcular_rescate(
+        self,
+        periodo_vigencia: int,
+        prima: float,
+        fraccionamiento_primas: float,
+        porcentaje_devolucion: float,
+    ):
+        # Obtener los datos de devolución desde el repositorio
+        devolucion = self.devolucion_repository.get_devolucion_data()
+        return self.reserva.calcular_rescate(
+            periodo_vigencia,
+            prima,
+            fraccionamiento_primas,
+            devolucion,
+            porcentaje_devolucion,
         )
