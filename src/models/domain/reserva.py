@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from src.models.domain.expuestos_mes import ExpuestosMes
 from src.utils.anios_meses import anios_meses
+# import numpy as np
 
 
 @dataclass
@@ -36,21 +37,41 @@ class Reserva:
 
     def calcular_saldo_reserva(
         self,
+        flujo_pasivo: list[float],
         tasa_interes_mensual: float,
-        rescate,
-        periodo_vigencia: int,
-        expuestos_mes: ExpuestosMes,
+        rescate: list[float],
+        vivos_inicio: list[float],
     ):
         """
         J2 (Saldo_Reserva) = =MAX( SI ( I2 + VNA( Parametros_Supuestos!$C$59; I3 : I946 ) < 0; 0; I2+ VNA(Parametros_Supuestos!$C$59; I3 : I946 )); R2 *'Expuestos Mes'!L2)
         """
-
+        # I2 flujo pasivo
         # C59 tasa_interes_mensual
-        # I3 flujo pasivo
-        # R2 calculo_rescate
-        # L2 expuestos_mes
+        # I3 flujo pasivo [index + 1] - [len(flujo_pasivo)]
+        # R2 calculo_rescate => rescate
+        # L2 expuestos_mes (vivos_inicio)
 
-        return 1
+        def vna(tasa, flujos):
+            # Valor Neto Actual: suma de flujos descontados al periodo i+1, i+2, ...
+            return sum(f / (1 + tasa) ** (idx + 1) for idx, f in enumerate(flujos))
+
+        saldo_reserva = []
+        n = len(flujo_pasivo)
+
+        for i in range(n):
+            flujo_actual = flujo_pasivo[i]
+            flujos_futuros = flujo_pasivo[i + 1 :] if i + 1 < n else []
+
+            vna_valor = (
+                vna(tasa_interes_mensual, flujos_futuros) if flujos_futuros else 0.0
+            )
+            suma = flujo_actual + vna_valor
+
+            # Aplicar condición de máximo entre (suma>=0 ? suma : 0) y rescate * vivos_inicio
+            valor = max(suma if suma >= 0 else 0, rescate[i] * float(vivos_inicio[i]))
+            saldo_reserva.append(valor)
+
+        return saldo_reserva
 
     def calcular_flujo_pasivo(
         self,
@@ -87,31 +108,17 @@ class Reserva:
     def calcular_ajuste_devolucion_anticipada(
         self,
         expuestos_mes: ExpuestosMes,
-        periodo_vigencia: int,
-        prima: float,
-        fraccionamiento_primas: float,
-        devolucion: list[dict],
-        porcentaje_devolucion: float,
+        rescates: list[float],
     ):
-
-        # * F2
-        rescate = self.calcular_rescate(
-            periodo_vigencia,
-            prima,
-            fraccionamiento_primas,
-            devolucion,
-            porcentaje_devolucion,
-        )
+        # print("rescate desde ajuste de devolucion anticipada => ", rescates)
 
         # * CADUCADOS
         resultados_mes = expuestos_mes.get("resultados_mensuales", [])
-        ajuste_devolucion_anticipada = []
+        rescate = []
         for idx, fila in enumerate(resultados_mes):
-            ajuste_devolucion_anticipada.append(
-                float(rescate[idx]) * float(fila.get("caducados", 0))
-            )
+            rescate.append(float(rescates[idx]) * float(fila.get("caducados", 0)))
 
-        return ajuste_devolucion_anticipada
+        return rescate
 
     def calcular_rescate(
         self,
