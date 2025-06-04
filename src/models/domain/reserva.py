@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from src.models.domain.expuestos_mes import ExpuestosMes
 from src.utils.anios_meses import anios_meses
-# import numpy as np
+from src.helpers.margen_reserva import margen_reserva
 
 
 @dataclass
@@ -18,22 +18,43 @@ class Reserva:
 
     def calcular_moce(
         self,
+        tasa_costo_capital_mensual: float,
         tasa_interes_mensual: float,
-        periodo_vigencia: int,
-        margen_reserva: float,
+        factor_reserva: float,
+        saldo_reserva: list[float],
     ):
         """
         Z2 (MOCE) = Parametros_Supuestos!$C$71 * ( VNA(Parametros_Supuestos!$C$59; Y3: $Y$851) + Y2)
 
-            Parametros_Supuestos!$C$71 (tir_mensual)  # ! input [OK]
+            Parametros_Supuestos!$C$71 (tasa_costo_capital_mensual)  # ! input [OK]
 
             Parametros_Supuestos!$C$59 (tasa_interes_mensual) # ! input [OK]
 
-            Y2 (5% Rsva) = J2 * 5% (margen_reserva) # ! NUEVA CONSTANTE
+            Y2 (5% Rsva) = J2 (saldo_reserva[i]) * 5% (margen_reserva) [_margen_reserva]
 
-            Y3  # ! (LO MISMO QUE Y2 PERO AGARRA DEL 2DA VALOR DE LA LISTA)
+            Y3: $Y$851  # ! (LO MISMO QUE Y2 PERO AGARRA DEL 2DA VALOR DE LA LISTA EN ADELANTE)
         """
-        return (tasa_interes_mensual, periodo_vigencia, margen_reserva)
+        # Lista completa de márgenes de reserva (uno por cada saldo)
+        _margen_reserva = margen_reserva(saldo_reserva, factor_reserva)
+
+        if not _margen_reserva:
+            return []
+
+        resultados_moce = []
+
+        for i in range(len(_margen_reserva)):
+            flujo_inicial = _margen_reserva[i]
+            flujos_futuros = _margen_reserva[i + 1 :]  # del siguiente en adelante
+
+            vna = sum(
+                flujo / ((1 + tasa_interes_mensual) ** j)
+                for j, flujo in enumerate(flujos_futuros, start=1)
+            )
+
+            moce = tasa_costo_capital_mensual * (vna + flujo_inicial)
+            resultados_moce.append(moce)
+
+        return resultados_moce
 
     def calcular_saldo_reserva(
         self,

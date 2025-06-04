@@ -17,12 +17,6 @@ class ReservaService:
     ):
         # calcular_moce + saldo_reserva * periodo_vigencia * 12
 
-        moce = self.reserva.calcular_moce(
-            tasa_interes_mensual=tasa_interes_mensual,
-            periodo_vigencia=periodo_vigencia,
-            margen_reserva=margen_reserva,
-        )
-
         print(
             "moce => ",
             tasa_interes_mensual,
@@ -35,6 +29,17 @@ class ReservaService:
             tasa_interes_mensual,
             periodo_vigencia,
             margen_reserva,
+        )
+
+    def calcular_moce(
+        self,
+        tasa_costo_capital_mensual: float,
+        tasa_interes_mensual: float,
+        margen_reserva: float,
+        saldo_reserva: list[float],
+    ):
+        return self.reserva.calcular_moce(
+            tasa_costo_capital_mensual, tasa_interes_mensual, margen_reserva, saldo_reserva
         )
 
     def calcular_ajuste_devolucion_anticipada(
