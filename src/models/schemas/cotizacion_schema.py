@@ -46,6 +46,9 @@ class ParametrosBase(BaseModel):
     frecuencia_pago_primas: FrecuenciaPago
     fumador: bool = Field(..., description="Indica si el asegurado es fumador")
     asistencia: bool = Field(..., description="Indica si el asegurado tiene asistencia")
+    porcentaje_devolucion: float = Field(
+        ..., gt=MINIMO_PORCENTAJE_DEVOLUCION, description="Porcentaje de devolución"
+    )
 
 
 # Parámetros específicos para RUMBO
@@ -103,7 +106,7 @@ class ParametrosAlmacenados(BaseModel):
 class ParametrosCalculados(BaseModel):
     adquisicion_fijo_poliza: float
     mantenimiento_poliza: float
-    tir_mensual: float
+    tasa_costo_capital_mensual: float
     inflacion_mensual: float
     reserva: float
     tasa_interes_anual: float
