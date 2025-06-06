@@ -29,3 +29,22 @@ class MargenSolvencia:
         return [
             reserva_fin_año[i] * _redondeo_mensual for i in range(len(reserva_fin_año))
         ]
+
+    def ingresiones_inversiones_margen_solvencia(
+        self, margen_solvencia: list[float], tasa_inversion: float
+    ):
+        _redondeo_mensual = redondeo_mensual(tasa_inversion)
+        return [
+            margen_solvencia[i] * _redondeo_mensual
+            for i in range(len(margen_solvencia))
+        ]
+
+    def calcular_ingreso_total_inversiones(
+        self,
+        ingreso_inversiones: list[float],
+        ingresiones_inversiones_margen_solvencia: list[float],
+    ):
+        return [
+            ingreso_inversiones[i] + ingresiones_inversiones_margen_solvencia[i]
+            for i in range(len(ingreso_inversiones))
+        ]
