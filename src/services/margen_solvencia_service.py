@@ -31,5 +31,19 @@ class MargenSolvenciaService:
             margen_solvencia=margen_solvencia,
         )
 
+    def calcular_ingreso_total_inversiones(self):
+        pass
+
+    def calcular_ingreso_inversiones(
+        self, reserva_fin_año: list[float], tasa_inversion: float
+    ):
+        return self.margen_solvencia.calcular_ingreso_inversiones(
+            reserva_fin_año=reserva_fin_año,
+            tasa_inversion=tasa_inversion,
+        )
+
+    def ingresiones_inversiones_margen_solvencia(self):
+        pass
+
     def _formatear_resultados(self):
         pass
