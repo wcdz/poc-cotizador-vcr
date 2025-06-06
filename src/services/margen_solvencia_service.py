@@ -8,10 +8,6 @@ class MargenSolvenciaService:
     """Servicio para calcular el margen de solvencia"""
 
     def __init__(self):
-        self.parametros_repository = JsonParametrosRepository()
-        self.parametros_dict = self.parametros_repository.get_parametros_by_producto(
-            "rumbo"
-        )
         self.flujo_resultado_service = FlujoResultadoService()
         self.margen_solvencia = MargenSolvencia()
         self.reserva_service = ReservaService()
