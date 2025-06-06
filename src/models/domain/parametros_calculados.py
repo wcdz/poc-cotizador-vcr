@@ -97,5 +97,5 @@ class ParametrosCalculados:
         tasa_interes_anual = tasa_interes_reserva(self.tasas_interes_data)[
             str(self.periodo_pago_primas)
         ]
-        tasa_inversion = tasa_interes_anual["tasa_inversion"]
+        tasa_inversion = tasa_interes_anual["tasa_inversion"] / 100
         return tasa_inversion
