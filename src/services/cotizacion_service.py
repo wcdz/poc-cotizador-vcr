@@ -374,6 +374,7 @@ class CotizadorService:
             tasa_interes_mensual=dominio.tasa_interes_mensual,
             tasa_inversion=dominio.tasa_inversion,
             inflacion_mensual=dominio.inflacion_mensual,
+            tasa_costo_capital_mes=dominio.tasa_costo_capital_mes,
         )
 
     # En el futuro, podrías tener métodos específicos para cada producto:

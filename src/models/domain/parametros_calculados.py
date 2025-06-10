@@ -37,6 +37,7 @@ class ParametrosCalculados:
     tasa_interes_mensual: float = field(init=False)
     tasa_inversion: float = field(init=False)
     inflacion_mensual: float = field(init=False)
+    tasa_costo_capital_mes: float = field(init=False)
 
     def __post_init__(self):
         """
@@ -52,6 +53,7 @@ class ParametrosCalculados:
         self.tasa_interes_mensual = self.calcular_tasa_interes_mensual()
         self.tasa_inversion = self.calcular_tasa_inversion()
         self.inflacion_mensual = self.calcular_inflacion_mensual()
+        self.tasa_costo_capital_mes = self.calcular_tasa_costo_capital_mes()
 
     def calcular_adquisicion_fijo_poliza(self) -> float:
         """Calcula el gasto de adquisición fijo por póliza"""
@@ -99,3 +101,7 @@ class ParametrosCalculados:
         ]
         tasa_inversion = tasa_interes_anual["tasa_inversion"] / 100
         return tasa_inversion
+
+    def calcular_tasa_costo_capital_mes(self) -> float:
+        """Calcula la tasa de costo capital mensual"""
+        return (1 + self.tasa_costo_capital_tir) ** (1 / 12) - 1
