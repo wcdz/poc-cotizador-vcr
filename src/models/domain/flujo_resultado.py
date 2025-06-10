@@ -187,3 +187,25 @@ class FlujoResultado:
         return [
             varianza_reserva[i] + varianza_moce[i] for i in range(len(varianza_reserva))
         ]
+
+    def calcular_utilidad_pre_pi_ms(
+        self,
+        primas_recurrentes: List[float],
+        comision: List[float],
+        gasto_adquisicion: float,
+        gastos_mantenimiento: List[float],
+        siniestros: List[float],
+        rescates: List[float],
+        variacion_reserva: List[float],
+    ) -> List[float]:
+
+        return [
+            primas_recurrentes[i]
+            - abs(comision[i])
+            - (gasto_adquisicion if i == 0 else 0)
+            - abs(gastos_mantenimiento[i])
+            - abs(siniestros[i])
+            - abs(rescates[i])
+            - abs(variacion_reserva[i])
+            for i in range(len(primas_recurrentes))
+        ]

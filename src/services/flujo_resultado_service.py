@@ -86,5 +86,25 @@ class FlujoResultadoService:
             varianza_reserva, varianza_moce
         )
 
+    def calcular_utilidad_pre_pi_ms(
+        self,
+        primas_recurrentes: List[float],
+        comision: List[float],
+        gasto_adquisicion: List[float],
+        gastos_mantenimiento: List[float],
+        siniestros: List[float],
+        rescates: List[float],
+        variacion_reserva: List[float],
+    ) -> List[float]:
+        return self.flujo_resultado.calcular_utilidad_pre_pi_ms(
+            primas_recurrentes,
+            comision,
+            gasto_adquisicion,
+            gastos_mantenimiento,
+            siniestros,
+            rescates,
+            variacion_reserva,
+        )
+
     def _formatear_resultados(self, resultados: list[float]) -> list[str]:
         return [str(resultado) for resultado in resultados]
