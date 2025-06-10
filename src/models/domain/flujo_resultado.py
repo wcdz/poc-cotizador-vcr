@@ -209,3 +209,27 @@ class FlujoResultado:
             - abs(variacion_reserva[i])
             for i in range(len(primas_recurrentes))
         ]
+
+    def calcular_IR(
+        self, utilidad_pre_pi_ms: List[float], impuesto_renta: float
+    ) -> List[float]:
+        return [
+            utilidad_pre_pi_ms[i] * impuesto_renta
+            for i in range(len(utilidad_pre_pi_ms))
+        ]
+
+    def calcular_producto_inversion(
+        self,
+        utilidad_pre_pi_ms: List[float],
+        varianza_margen_solvencia: List[float],
+        IR: List[float],
+        producto_inversion: List[float],
+    ) -> List[float]:
+
+        return [
+            utilidad_pre_pi_ms[i]
+            - abs(varianza_margen_solvencia[i])
+            - abs(IR[i])
+            + producto_inversion[i]
+            for i in range(len(utilidad_pre_pi_ms))
+        ]

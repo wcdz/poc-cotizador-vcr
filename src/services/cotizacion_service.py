@@ -11,9 +11,12 @@ from src.models.domain.parametros_calculados import (
     ParametrosCalculados as ParametrosCalculadosDomain,
 )
 from src.repositories.tasa_interes_repository import JsonTasaInteresRepository
+from src.repositories.devolucion_repository import JsonDevolucionRepository
 from src.services.expuestos_mes_service import ExpuestosMesService
 from src.services.gastos_service import GastosService
 from src.services.flujo_resultado_service import FlujoResultadoService
+from src.services.margen_solvencia_service import MargenSolvenciaService
+from src.services.reserva_service import ReservaService
 
 
 class CotizadorService:
@@ -22,9 +25,12 @@ class CotizadorService:
     def __init__(self):
         self.parametros_repository = JsonParametrosRepository()
         self.tasa_interes_repository = JsonTasaInteresRepository()
+        self.devolucion_repository = JsonDevolucionRepository()
         self.expuestos_mes = ExpuestosMesService()
         self.gastos_service = GastosService()
         self.flujo_resultado_service = FlujoResultadoService()
+        self.margen_solvencia_service = MargenSolvenciaService()
+        self.reserva_service = ReservaService()
 
     def cotizar(self, cotizacion_input: CotizacionInput) -> CotizacionOutput:
         """
@@ -99,7 +105,189 @@ class CotizadorService:
             prima=prima,
         )
 
+        # print("\n")
+        # print("primas_recurrentes => ", primas_recurrentes)
+
+        siniestros = self.flujo_resultado_service.calcular_siniestros(
+            expuestos_mes=expuestos_mes,
+            suma_asegurada=cotizacion_input.parametros.suma_asegurada,
+        )
+
+        # print("\n")
+        # print("siniestros => ", siniestros)
+
+        rescate = self.reserva_service.calcular_rescate(
+            periodo_vigencia=periodo_vigencia,
+            prima=cotizacion_input.parametros.prima,
+            fraccionamiento_primas=parametros_almacenados.fraccionamiento_primas,
+            porcentaje_devolucion=cotizacion_input.parametros.porcentaje_devolucion,
+        )
+
+        # print("rescate => ", rescate)
+
+        recates_ajuste_devolucion_anticipada = (
+            self.flujo_resultado_service.calcular_rescates(
+                expuestos_mes=expuestos_mes,
+                rescate=rescate,
+            )
+        )
+
+        # print("\n")
+        # print("recates_ajuste_devolucion_anticipada => ",recates_ajuste_devolucion_anticipada)
+
+        gastos_mantenimiento = (
+            self.flujo_resultado_service.calcular_gastos_mantenimiento(
+                gastos_mantenimiento=gastos,
+            )
+        )
+
+        # print("\n")
+        # print("gastos_mantenimiento => ", gastos_mantenimiento)
+
+        gasto_adquisicion = self.flujo_resultado_service.calcular_gasto_adquisicion(
+            gasto_adquisicion=parametros_almacenados.gasto_adquisicion,
+        )
+
+        # print("\n")
+        # print("gastos_adquisicion => ", gasto_adquisicion)
+
+        comision = self.flujo_resultado_service.calcular_comision(
+            primas_recurrentes=primas_recurrentes,
+            asistencia=parametros_almacenados.tiene_asistencia,
+            frecuencia_pago_primas=cotizacion_input.parametros.frecuencia_pago_primas,
+            costo_asistencia_funeraria=parametros_almacenados.costo_mensual_asistencia_funeraria,
+            expuestos_mes=expuestos_mes,
+            comision=parametros_almacenados.comision,
+        )
+
+        # print("\n")
+        # print("comision => ", comision)
+
         flujo_resultado = {"primas_recurrentes": primas_recurrentes}
+
+        flujo_pasivo = self.reserva_service.calcular_flujo_pasivo(
+            siniestros,
+            recates_ajuste_devolucion_anticipada,
+            gastos_mantenimiento,
+            comision,
+            gasto_adquisicion,
+            primas_recurrentes,
+        )
+        # print("flujo pasivo => ", flujo_pasivo)
+
+        saldo_reserva = self.reserva_service.calcular_saldo_reserva(
+            flujo_pasivo,
+            parametros_calculados.tasa_interes_mensual,
+            rescate,
+            expuestos_mes,
+        )
+
+        # print("saldo_reserva => ", saldo_reserva)
+
+        moce = self.reserva_service.calcular_moce(
+            tasa_costo_capital_mensual=parametros_calculados.tasa_costo_capital_mensual,
+            tasa_interes_mensual=parametros_calculados.tasa_interes_mensual,
+            margen_reserva=parametros_almacenados.margen_solvencia,
+            saldo_reserva=saldo_reserva,
+        )
+
+        # print("moce => ", moce)
+
+        moce_saldo_reserva = self.reserva_service.calcular_moce_saldo_reserva(
+            saldo_reserva=saldo_reserva,
+            moce=moce,
+        )
+
+        # print("moce_saldo_reserva => ", moce_saldo_reserva)
+        reserva_fin_año = self.margen_solvencia_service.calcular_reserva_fin_año(
+            saldo_reserva=saldo_reserva,
+            moce=moce,
+        )
+
+        # print("reserva_fin_año => ", reserva_fin_año)
+
+        margen_solvencia = self.margen_solvencia_service.calcular_margen_solvencia(
+            reserva_fin_año=reserva_fin_año,
+            margen_solvencia_reserva=parametros_calculados.reserva,
+        )
+
+        # print("margen_solvencia => ", margen_solvencia)
+
+        varianza_margen_solvencia = (
+            self.margen_solvencia_service.calcular_varianza_margen_solvencia(
+                margen_solvencia=margen_solvencia,
+            )
+        )
+
+        # print("varianza_margen_solvencia => ", varianza_margen_solvencia)
+
+        ingreso_inversiones = (
+            self.margen_solvencia_service.calcular_ingreso_inversiones(
+                reserva_fin_año=reserva_fin_año,
+                tasa_inversion=parametros_calculados.tasa_inversion,
+            )
+        )
+
+        # print("ingreso_inversiones => ", ingreso_inversiones)
+
+        ingresiones_inversiones_margen_solvencia = (
+            self.margen_solvencia_service.ingresiones_inversiones_margen_solvencia(
+                margen_solvencia=margen_solvencia,
+                tasa_inversion=parametros_calculados.tasa_inversion,
+            )
+        )
+
+        # print("ingresiones_inversiones_margen_solvencia => ",ingresiones_inversiones_margen_solvencia)
+
+        ingreso_total_inversiones = self.margen_solvencia_service.calcular_ingreso_total_inversiones(
+            ingreso_inversiones=ingreso_inversiones,
+            ingresiones_inversiones_margen_solvencia=ingresiones_inversiones_margen_solvencia,
+        )
+
+        # print("ingreso_total_inversiones => ", ingreso_total_inversiones)
+
+        varianza_moce = self.reserva_service.calcular_varianza_moce(moce)
+
+        # print("varianza_moce => ", varianza_moce)
+
+        varianza_reserva = self.reserva_service.calcular_varianza_reserva(saldo_reserva)
+
+        # print("varianza_reserva => ", varianza_reserva)
+
+        variacion_reserva = self.flujo_resultado_service.calcular_variacion_reserva(
+            varianza_reserva=varianza_reserva,
+            varianza_moce=varianza_moce,
+        )
+
+        # print("\n")
+        # print("variacion_reserva => ", variacion_reserva)
+
+        utilidad_pre_pi_ms = self.flujo_resultado_service.calcular_utilidad_pre_pi_ms(
+            primas_recurrentes=primas_recurrentes,
+            comision=comision,
+            gasto_adquisicion=gasto_adquisicion,
+            gastos_mantenimiento=gastos_mantenimiento,
+            siniestros=siniestros,
+            rescates=recates_ajuste_devolucion_anticipada,
+            variacion_reserva=variacion_reserva,
+        )
+
+        # print("\n")
+        # print("utilidad_pre_pi_ms => ", utilidad_pre_pi_ms)
+
+        IR = self.flujo_resultado_service.calcular_IR(
+            utilidad_pre_pi_ms=utilidad_pre_pi_ms,
+            impuesto_renta=parametros_almacenados.impuesto_renta,
+        )
+
+        producto_inversion = self.flujo_resultado_service.calcular_producto_inversion(
+            utilidad_pre_pi_ms=utilidad_pre_pi_ms,
+            varianza_margen_solvencia=varianza_margen_solvencia,
+            IR=IR,
+            ingreso_total_inversiones=ingreso_total_inversiones,
+        )
+        
+        print("producto_inversion => ", producto_inversion)
 
         # Crear la respuesta base
         respuesta = CotizacionOutput(
@@ -146,6 +334,11 @@ class CotizadorService:
         )
         moneda_poliza = parametros_dict.get("moneda_poliza", 0.01)
         fraccionamiento_primas = parametros_dict.get("fraccionamiento_primas", 0.01)
+        comision = parametros_dict.get("comision", 0.01)
+        costo_asistencia_funeraria = parametros_dict.get(
+            "costo_asistencia_funeraria", 0.01
+        )
+        impuesto_renta = parametros_dict.get("impuesto_renta", 0.01)
 
         return ParametrosAlmacenadosSchema(
             gasto_adquisicion=gasto_adquisicion,
@@ -163,6 +356,9 @@ class CotizadorService:
             costo_mensual_asistencia_funeraria=costo_mensual_asistencia_funeraria,
             moneda_poliza=moneda_poliza,
             fraccionamiento_primas=fraccionamiento_primas,
+            comision=comision,
+            costo_asistencia_funeraria=costo_asistencia_funeraria,
+            impuesto_renta=impuesto_renta,
         )
 
     def _convertir_a_esquema(
@@ -172,7 +368,7 @@ class CotizadorService:
         return ParametrosCalculadosSchema(
             adquisicion_fijo_poliza=dominio.adquisicion_fijo_poliza,
             mantenimiento_poliza=dominio.mantenimiento_poliza,
-            tir_mensual=dominio.tir_mensual,
+            tasa_costo_capital_mensual=dominio.tir_mensual,
             reserva=dominio.reserva,
             tasa_interes_anual=dominio.tasa_interes_anual,
             tasa_interes_mensual=dominio.tasa_interes_mensual,

@@ -106,5 +106,24 @@ class FlujoResultadoService:
             variacion_reserva,
         )
 
+    def calcular_IR(
+        self, utilidad_pre_pi_ms: List[float], impuesto_renta: float
+    ) -> List[float]:
+        return self.flujo_resultado.calcular_IR(utilidad_pre_pi_ms, impuesto_renta)
+
+    def calcular_producto_inversion(
+        self,
+        utilidad_pre_pi_ms: List[float],
+        varianza_margen_solvencia: List[float],
+        IR: List[float],
+        ingreso_total_inversiones: List[float],
+    ) -> List[float]:
+        return self.flujo_resultado.calcular_producto_inversion(
+            utilidad_pre_pi_ms,
+            varianza_margen_solvencia,
+            IR,
+            ingreso_total_inversiones,
+        )
+
     def _formatear_resultados(self, resultados: list[float]) -> list[str]:
         return [str(resultado) for resultado in resultados]
