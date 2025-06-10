@@ -92,3 +92,9 @@ class ReservaService:
                 for item in expuestos_mes.get("resultados_mensuales", [])
             ],
         )
+
+    def calcular_varianza_moce(self, moce: list[float]):
+        return self.reserva.calcular_varianza_moce(moce)
+
+    def calcular_varianza_reserva(self, saldo_reserva: list[float]):
+        return self.reserva.calcular_varianza_reserva(saldo_reserva)

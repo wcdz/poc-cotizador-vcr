@@ -180,3 +180,10 @@ class FlujoResultado:
             donde el primer elemento es gasto_adquisicion y el resto son ceros.
         """
         return gasto_adquisicion
+
+    def calcular_variacion_reserva(
+        self, varianza_reserva: list[float], varianza_moce: list[float]
+    ) -> list[float]:
+        return [
+            varianza_reserva[i] + varianza_moce[i] for i in range(len(varianza_reserva))
+        ]

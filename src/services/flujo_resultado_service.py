@@ -79,5 +79,12 @@ class FlujoResultadoService:
     def calcular_gasto_adquisicion(self, gasto_adquisicion: float):
         return self.flujo_resultado.calcular_gastos_adquisicion(gasto_adquisicion)
 
+    def calcular_variacion_reserva(
+        self, varianza_reserva: list[float], varianza_moce: list[float]
+    ) -> list[float]:
+        return self.flujo_resultado.calcular_variacion_reserva(
+            varianza_reserva, varianza_moce
+        )
+
     def _formatear_resultados(self, resultados: list[float]) -> list[str]:
         return [str(resultado) for resultado in resultados]
