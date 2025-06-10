@@ -103,6 +103,7 @@ class ParametrosAlmacenados(BaseModel):
     fraccionamiento_primas: float
     comision: float
     costo_asistencia_funeraria: float
+    impuesto_renta: float
 
 
 class ParametrosCalculados(BaseModel):
