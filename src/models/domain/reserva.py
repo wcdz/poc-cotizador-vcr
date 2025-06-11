@@ -332,12 +332,17 @@ class Reserva:
         return porcentaje_devolucion_anual
 
     def calcular_varianza_moce(self, moce: list[float]) -> list[float]:
-        if not moce:
-            return []
+        variaciones = [-moce[0]] + [
+            -(curr - prev) for prev, curr in zip(moce, moce[1:])
+        ]
 
-        return [-moce[0]] + [-(curr - prev) for prev, curr in zip(moce, moce[1:])]
+        variaciones.append(-moce[-1])
+        return variaciones
 
     def calcular_varianza_reserva(self, saldo_reserva: list[float]) -> list[float]:
-        return [-saldo_reserva[0]] + [
+        variaciones = [-saldo_reserva[0]] + [
             -(curr - prev) for prev, curr in zip(saldo_reserva, saldo_reserva[1:])
         ]
+        variaciones.append(-saldo_reserva[-1])
+
+        return variaciones

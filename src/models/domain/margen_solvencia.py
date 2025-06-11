@@ -16,11 +16,12 @@ class MargenSolvencia:
     def calcular_varianza_margen_solvencia(
         self, margen_solvencia: list[float]
     ) -> list[float]:
-        # variable_margen_solvencia.append(-margen_solvencia[-1])
-        return [margen_solvencia[0]] + [
+        varianza_margen_solvencia = [margen_solvencia[0]] + [
             actual - anterior
             for anterior, actual in zip(margen_solvencia, margen_solvencia[1:])
         ]
+        varianza_margen_solvencia.append(-margen_solvencia[-1])
+        return varianza_margen_solvencia
 
     def calcular_ingreso_inversiones(
         self, reserva_fin_año: list[float], tasa_inversion: float

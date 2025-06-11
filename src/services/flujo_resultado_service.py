@@ -95,7 +95,7 @@ class FlujoResultadoService:
         siniestros: List[float],
         rescates: List[float],
         variacion_reserva: List[float],
-    ) -> List[float]:
+    ) -> List[float]:        
         return self.flujo_resultado.calcular_utilidad_pre_pi_ms(
             primas_recurrentes,
             comision,
@@ -111,19 +111,24 @@ class FlujoResultadoService:
     ) -> List[float]:
         return self.flujo_resultado.calcular_IR(utilidad_pre_pi_ms, impuesto_renta)
 
-    def calcular_producto_inversion(
+    def calcular_flujo_accionista(
         self,
         utilidad_pre_pi_ms: List[float],
         varianza_margen_solvencia: List[float],
         IR: List[float],
         ingreso_total_inversiones: List[float],
     ) -> List[float]:
-        return self.flujo_resultado.calcular_producto_inversion(
+        return self.flujo_resultado.calcular_flujo_accionista(
             utilidad_pre_pi_ms,
             varianza_margen_solvencia,
             IR,
             ingreso_total_inversiones,
         )
+
+    def auxiliar(
+        self, flujo_accionista: List[float], tasa_costo_capital_mes: float
+    ) -> List[float]:
+        return self.flujo_resultado.auxiliar(flujo_accionista, tasa_costo_capital_mes)
 
     def _formatear_resultados(self, resultados: list[float]) -> list[str]:
         return [str(resultado) for resultado in resultados]

@@ -184,9 +184,14 @@ class FlujoResultado:
     def calcular_variacion_reserva(
         self, varianza_reserva: list[float], varianza_moce: list[float]
     ) -> list[float]:
-        return [
+
+        variacion_reserva = [
             varianza_reserva[i] + varianza_moce[i] for i in range(len(varianza_reserva))
         ]
+
+        variacion_reserva[-1] = +abs(variacion_reserva[-1])
+
+        return variacion_reserva
 
     def calcular_utilidad_pre_pi_ms(
         self,
@@ -199,7 +204,7 @@ class FlujoResultado:
         variacion_reserva: List[float],
     ) -> List[float]:
 
-        return [
+        utilidad_pre_pi_ms = [
             primas_recurrentes[i]
             - abs(comision[i])
             - (gasto_adquisicion if i == 0 else 0)
@@ -210,6 +215,10 @@ class FlujoResultado:
             for i in range(len(primas_recurrentes))
         ]
 
+        utilidad_pre_pi_ms.append(variacion_reserva[-1])
+
+        return utilidad_pre_pi_ms
+
     def calcular_IR(
         self, utilidad_pre_pi_ms: List[float], impuesto_renta: float
     ) -> List[float]:
@@ -218,18 +227,40 @@ class FlujoResultado:
             for i in range(len(utilidad_pre_pi_ms))
         ]
 
-    def calcular_producto_inversion(
+    def calcular_flujo_accionista(
         self,
         utilidad_pre_pi_ms: List[float],
         varianza_margen_solvencia: List[float],
         IR: List[float],
         producto_inversion: List[float],
     ) -> List[float]:
-
         return [
             utilidad_pre_pi_ms[i]
-            - abs(varianza_margen_solvencia[i])
+            + (
+                abs(varianza_margen_solvencia[i])
+                if i == len(utilidad_pre_pi_ms) - 1
+                else -abs(varianza_margen_solvencia[i])
+            )
             - abs(IR[i])
-            + producto_inversion[i]
+            + (producto_inversion[i] if i < len(producto_inversion) else 0.0)
             for i in range(len(utilidad_pre_pi_ms))
         ]
+
+    def auxiliar(
+        self, flujo_accionista: List[float], tasa_costo_capital_mes: float
+    ) -> float:
+
+        print("\n")
+        print("flujo_accionista => ", flujo_accionista)
+        print("\n")
+        print("tasa_costo_capital_mes => ", tasa_costo_capital_mes)
+        print("\n")
+
+        def calcular_vna_estilo_excel(flujo: list[float], tasa: float) -> float:
+            vna = sum(f / (1 + tasa) ** i for i, f in enumerate(flujo[1:], start=1))
+            return flujo[0] + vna
+
+        vna_resultado = calcular_vna_estilo_excel(
+            flujo_accionista, tasa_costo_capital_mes
+        )
+        return vna_resultado
