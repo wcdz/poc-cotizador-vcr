@@ -351,25 +351,41 @@ class CotizadorService:
                 porcentaje_devolucion_optimo,
             )
 
+            # Calcular y mostrar la TREA en consola usando el porcentaje óptimo
+            trea = CotizadorService.calcular_trea(
+                periodo_pago_primas, prima, porcentaje_devolucion_optimo
+            )
+            print(f"TREA para el porcentaje óptimo: {trea * 100:.6f}%")
+
         # Crear la respuesta base
         respuesta = CotizacionOutput(
             producto=cotizacion_input.producto,
             parametros_entrada=cotizacion_input.parametros,
             parametros_almacenados=parametros_almacenados,
             parametros_calculados=parametros_calculados,
-            expuestos_mes=expuestos_mes,
-            gastos=gastos,
-            flujo_resultado=flujo_resultado,
+            # expuestos_mes=expuestos_mes,
+            # gastos=gastos,
+            # flujo_resultado=flujo_resultado,
         )
 
         # Añadir campos específicos según el producto
         if cotizacion_input.producto == TipoProducto.RUMBO:
             if porcentaje_devolucion_optimo:
-                respuesta.porcentaje_devolucion = str(porcentaje_devolucion_optimo)
+                rumbo = {
+                    "porcentaje_devolucion": str(porcentaje_devolucion_optimo),
+                    "trea": str(trea),
+                }
+                respuesta.rumbo = rumbo
+                # respuesta.porcentaje_devolucion = str(porcentaje_devolucion_optimo)
             else:
-                respuesta.porcentaje_devolucion = ""
+                # respuesta.porcentaje_devolucion = ""
+                rumbo = {
+                    "porcentaje_devolucion": "",
+                    "trea": "",
+                }
         elif cotizacion_input.producto == TipoProducto.ENDOSOS:
-            respuesta.prima = ""
+            endosos = {"prima": ""}
+            respuesta.endosos = endosos
 
         return respuesta
 
@@ -456,10 +472,10 @@ class CotizadorService:
         parametros_calculados,
         periodo_vigencia,
         periodo_pago_primas,
-        *args, **kwargs
+        *args,
+        **kwargs,
     ):
         def evaluar_vna(porcentaje):
-            # 1. expuestos_mes
             expuestos_mes = self.expuestos_mes.calcular_expuestos_mes(
                 edad_actuarial=cotizacion_input.parametros.edad_actuarial,
                 sexo=cotizacion_input.parametros.sexo,
@@ -469,19 +485,16 @@ class CotizadorService:
                 periodo_pago_primas=periodo_pago_primas,
                 ajuste_mortalidad=parametros_almacenados.ajuste_mortalidad,
             )
-            # 2. siniestros
             siniestros = flujo_resultado_service.calcular_siniestros(
                 expuestos_mes=expuestos_mes,
                 suma_asegurada=cotizacion_input.parametros.suma_asegurada,
             )
-            # 3. primas_recurrentes
             primas_recurrentes = flujo_resultado_service.calcular_primas_recurrentes(
                 expuestos_mes=expuestos_mes,
                 periodo_pago_primas=periodo_pago_primas,
                 frecuencia_pago_primas=cotizacion_input.parametros.frecuencia_pago_primas,
                 prima=prima,
             )
-            # 4. gastos
             gastos = self.gastos_service.calcular_gastos(
                 periodo_vigencia=periodo_vigencia,
                 periodo_pago_primas=periodo_pago_primas,
@@ -496,15 +509,14 @@ class CotizadorService:
                 costo_mensual_asistencia_funeraria=parametros_almacenados.costo_mensual_asistencia_funeraria,
                 inflacion_mensual=parametros_calculados.inflacion_mensual,
             )
-            # 5. gastos_mantenimiento
-            gastos_mantenimiento = flujo_resultado_service.calcular_gastos_mantenimiento(
-                gastos_mantenimiento=gastos,
+            gastos_mantenimiento = (
+                flujo_resultado_service.calcular_gastos_mantenimiento(
+                    gastos_mantenimiento=gastos,
+                )
             )
-            # 6. gasto_adquisicion
             gasto_adquisicion = flujo_resultado_service.calcular_gasto_adquisicion(
                 gasto_adquisicion=parametros_almacenados.gasto_adquisicion,
             )
-            # 7. comision
             comision = flujo_resultado_service.calcular_comision(
                 primas_recurrentes=primas_recurrentes,
                 asistencia=parametros_almacenados.tiene_asistencia,
@@ -513,19 +525,16 @@ class CotizadorService:
                 expuestos_mes=expuestos_mes,
                 comision=parametros_almacenados.comision,
             )
-            # 8. rescate
             rescate = self.reserva_service.calcular_rescate(
                 periodo_vigencia=periodo_vigencia,
                 prima=prima,
                 fraccionamiento_primas=parametros_almacenados.fraccionamiento_primas,
                 porcentaje_devolucion=porcentaje,
             )
-            # 9. rescates
             rescates = flujo_resultado_service.calcular_rescates(
                 expuestos_mes=expuestos_mes,
                 rescate=rescate,
             )
-            # 10. flujo_pasivo
             flujo_pasivo_ = self.reserva_service.calcular_flujo_pasivo(
                 siniestros,
                 rescates,
@@ -534,59 +543,55 @@ class CotizadorService:
                 gasto_adquisicion,
                 primas_recurrentes,
             )
-            # 11. saldo_reserva
             saldo_reserva_ = self.reserva_service.calcular_saldo_reserva(
                 flujo_pasivo_,
                 parametros_calculados.tasa_interes_mensual,
                 rescate,
                 expuestos_mes,
             )
-            # 12. moce
             moce_ = self.reserva_service.calcular_moce(
                 tasa_costo_capital_mensual=parametros_calculados.tasa_costo_capital_mensual,
                 tasa_interes_mensual=parametros_calculados.tasa_interes_mensual,
                 margen_reserva=parametros_almacenados.margen_solvencia,
                 saldo_reserva=saldo_reserva_,
             )
-            # 13. reserva_fin_año
             reserva_fin_año_ = self.margen_solvencia_service.calcular_reserva_fin_año(
                 saldo_reserva=saldo_reserva_,
                 moce=moce_,
             )
-            # 14. margen_solvencia
             margen_solvencia_ = self.margen_solvencia_service.calcular_margen_solvencia(
                 reserva_fin_año=reserva_fin_año_,
                 margen_solvencia_reserva=parametros_calculados.reserva,
             )
-            # 15. varianza_margen_solvencia
-            varianza_margen_solvencia_ = self.margen_solvencia_service.calcular_varianza_margen_solvencia(
-                margen_solvencia=margen_solvencia_,
+            varianza_margen_solvencia_ = (
+                self.margen_solvencia_service.calcular_varianza_margen_solvencia(
+                    margen_solvencia=margen_solvencia_,
+                )
             )
-            # 16. ingreso_inversiones
-            ingreso_inversiones_ = self.margen_solvencia_service.calcular_ingreso_inversiones(
-                reserva_fin_año=reserva_fin_año_,
-                tasa_inversion=parametros_calculados.tasa_inversion,
+            ingreso_inversiones_ = (
+                self.margen_solvencia_service.calcular_ingreso_inversiones(
+                    reserva_fin_año=reserva_fin_año_,
+                    tasa_inversion=parametros_calculados.tasa_inversion,
+                )
             )
-            # 17. ingresiones_inversiones_margen_solvencia
-            ingresiones_inversiones_margen_solvencia_ = self.margen_solvencia_service.ingresiones_inversiones_margen_solvencia(
-                margen_solvencia=margen_solvencia_,
-                tasa_inversion=parametros_calculados.tasa_inversion,
+            ingresiones_inversiones_margen_solvencia_ = (
+                self.margen_solvencia_service.ingresiones_inversiones_margen_solvencia(
+                    margen_solvencia=margen_solvencia_,
+                    tasa_inversion=parametros_calculados.tasa_inversion,
+                )
             )
-            # 18. ingreso_total_inversiones
             ingreso_total_inversiones_ = self.margen_solvencia_service.calcular_ingreso_total_inversiones(
                 ingreso_inversiones=ingreso_inversiones_,
                 ingresiones_inversiones_margen_solvencia=ingresiones_inversiones_margen_solvencia_,
             )
-            # 19. varianza_moce
             varianza_moce_ = self.reserva_service.calcular_varianza_moce(moce_)
-            # 20. varianza_reserva
-            varianza_reserva_ = self.reserva_service.calcular_varianza_reserva(saldo_reserva_)
-            # 21. variacion_reserva
+            varianza_reserva_ = self.reserva_service.calcular_varianza_reserva(
+                saldo_reserva_
+            )
             variacion_reserva_ = flujo_resultado_service.calcular_variacion_reserva(
                 varianza_reserva=varianza_reserva_,
                 varianza_moce=varianza_moce_,
             )
-            # 22. utilidad_pre_pi_ms
             utilidad_pre_ = flujo_resultado_service.calcular_utilidad_pre_pi_ms(
                 primas_recurrentes,
                 comision,
@@ -596,67 +601,107 @@ class CotizadorService:
                 rescates,
                 variacion_reserva_,
             )
-            # 23. IR
             IR_ = flujo_resultado_service.calcular_IR(
                 utilidad_pre_pi_ms=utilidad_pre_,
                 impuesto_renta=parametros_almacenados.impuesto_renta,
             )
-            # 24. flujo_accionista
             flujo_accionista_ = flujo_resultado_service.calcular_flujo_accionista(
                 utilidad_pre_pi_ms=utilidad_pre_,
                 varianza_margen_solvencia=varianza_margen_solvencia_,
                 IR=IR_,
                 ingreso_total_inversiones=ingreso_total_inversiones_,
             )
-            # 25. VNA
             vna = flujo_resultado_service.auxiliar(
                 flujo_accionista=flujo_accionista_,
                 tasa_costo_capital_mes=parametros_calculados.tasa_costo_capital_mes,
             )
             return vna
 
-        # --- Búsqueda gruesa ---
-        porcentaje = 100.0
-        paso_grueso = 0.01
-        mejor_porcentaje = porcentaje
-        mejor_vna = None
-        vna_anterior = None
-        porcentaje_anterior = None
-        cruce_detectado = False
-        max_iter = 10000
-        iteracion = 0
-        while porcentaje <= 130.0 and iteracion < max_iter:
-            vna = evaluar_vna(porcentaje)
-            if mejor_vna is None or abs(vna) < abs(mejor_vna):
-                mejor_vna = vna
-                mejor_porcentaje = porcentaje
-            if vna_anterior is not None and (vna_anterior * vna) < 0:
-                cruce_detectado = True
+        # --- Búsqueda por bisección con tope dinámico ---
+        a = 100.0
+        b = 130.0
+        max_b = 200.0
+        paso_b = 10.0
+        tol = 1e-6
+        max_iter = 50
+        vna_a = evaluar_vna(a)
+        vna_b = evaluar_vna(b)
+
+        # Si no hay cruce, aumentar b dinámicamente
+        while vna_a * vna_b > 0 and b < max_b:
+            b += paso_b
+            vna_b = evaluar_vna(b)
+        if abs(vna_a) < tol:
+            return a
+        if abs(vna_b) < tol:
+            return b
+        if vna_a * vna_b > 0:
+            # No hay cruce de signo, devolvemos el mejor de los extremos
+            return a if abs(vna_a) < abs(vna_b) else b
+        for _ in range(max_iter):
+            c = (a + b) / 2.0
+            vna_c = evaluar_vna(c)
+            if abs(vna_c) < tol:
+                return c
+            if vna_a * vna_c < 0:
+                b = c
+                vna_b = vna_c
+            else:
+                a = c
+                vna_a = vna_c
+            if abs(b - a) < tol:
                 break
-            vna_anterior = vna
-            porcentaje_anterior = porcentaje
-            porcentaje += paso_grueso
-            iteracion += 1
-        # Si no hay cruce, devolvemos el mejor encontrado
-        if not cruce_detectado:
-            return mejor_porcentaje
-        # --- Búsqueda fina ---
-        inicio = porcentaje_anterior
-        fin = porcentaje
-        paso_fino = 0.0001
-        porcentaje = inicio
-        mejor_porcentaje_fino = mejor_porcentaje
-        mejor_vna_fino = mejor_vna
-        while porcentaje <= fin:
-            vna = evaluar_vna(porcentaje)
-            if abs(vna) < abs(mejor_vna_fino):
-                mejor_vna_fino = vna
-                mejor_porcentaje_fino = porcentaje
-            if abs(vna) < 1e-8:
-                break
-            porcentaje += paso_fino
+        # Devolver el punto más cercano a cero
 
-        print(f"Porcentaje óptimo: {mejor_porcentaje_fino:.5f}% con VNA={mejor_vna_fino:.10f}")
+        if abs(vna_a) < abs(vna_b):
+            print(f"Porcentaje óptimo A: {a:.5f}% con VNA={vna_a:.10f}")
+            return a
+        else:
+            print(f"Porcentaje óptimo B: {b:.5f}% con VNA={vna_b:.10f}")
+            return b
 
-        return mejor_porcentaje_fino
+    def calcular_trea(periodo_pago_primas, prima, porcentaje_devolucion):
+        """
+        Calcula la TREA según la fórmula de Excel:
+        =(1+TASA(C8*12;C22;0;-(C22*C8*C11*12);1))^(12)-1
+        Donde:
+        C8 = periodo de pago de primas (años)
+        C22 = prima
+        C11 = porcentaje de devolución (en porcentaje, ej: 125.32 para 125.32%)
+        """
+        nper = periodo_pago_primas * 12
+        pmt = prima
+        pv = 0
+        fv = -(prima * periodo_pago_primas * 12 * (porcentaje_devolucion / 100))
+        tipo = 1  # pagos al inicio
 
+        def funcion_tasa(r):
+            if r == 0:
+                return pmt * nper + pv + fv
+            return (
+                pmt * (1 + r * tipo) * (1 - (1 + r) ** -nper) / r
+                + pv
+                + fv / ((1 + r) ** nper)
+            )
+
+        def derivada_f(r, h=1e-6):
+            return (funcion_tasa(r + h) - funcion_tasa(r - h)) / (2 * h)
+
+        def newton_raphson(f, f_prime, x0, tol=1e-7, max_iter=100):
+            x = x0
+            for _ in range(max_iter):
+                fx = f(x)
+                dfx = f_prime(x)
+                if dfx == 0:
+                    raise Exception("Derivada cero")
+                x_new = x - fx / dfx
+                if abs(x_new - x) < tol:
+                    return x_new
+                x = x_new
+            raise Exception("No converge")
+
+        tasa_mensual = newton_raphson(funcion_tasa, derivada_f, 0.01)
+        trea = (1 + tasa_mensual) ** 12 - 1
+        return trea
+
+    # ! consultar el valor maximo de porcentaje de devolucion para rumbo - falta TREA

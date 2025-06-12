@@ -249,13 +249,6 @@ class FlujoResultado:
     def auxiliar(
         self, flujo_accionista: List[float], tasa_costo_capital_mes: float
     ) -> float:
-
-        print("\n")
-        print("flujo_accionista => ", flujo_accionista)
-        print("\n")
-        print("tasa_costo_capital_mes => ", tasa_costo_capital_mes)
-        print("\n")
-
         def calcular_vna_estilo_excel(flujo: list[float], tasa: float) -> float:
             vna = sum(f / (1 + tasa) ** i for i, f in enumerate(flujo[1:], start=1))
             return flujo[0] + vna

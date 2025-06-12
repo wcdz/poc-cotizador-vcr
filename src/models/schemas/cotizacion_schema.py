@@ -124,9 +124,11 @@ class CotizacionOutput(BaseModel):
     parametros_entrada: Union[ParametrosRumbo, ParametrosEndosos]
     parametros_almacenados: ParametrosAlmacenados
     parametros_calculados: ParametrosCalculados
-    expuestos_mes: ProyeccionActuarialOutput
-    gastos: Gastos
-    flujo_resultado: FlujoResultado
+    # expuestos_mes: ProyeccionActuarialOutput
+    # gastos: Gastos
+    # flujo_resultado: FlujoResultado
     # Campos opcionales específicos para cada producto
-    porcentaje_devolucion: Optional[str] = None  # Para RUMBO
-    prima: Optional[str] = None  # Para ENDOSOS
+    #porcentaje_devolucion: Optional[str] = None  # Para RUMBO
+    #prima: Optional[str] = None  # Para ENDOSOS
+    rumbo: Optional[dict] = None  # Para RUMBO con porcentaje_devolucion y trea
+    endosos: Optional[dict] = None  # Para ENDOSOS con porcentaje_devolucion y trea
