@@ -17,6 +17,7 @@ from src.services.gastos_service import GastosService
 from src.services.flujo_resultado_service import FlujoResultadoService
 from src.services.margen_solvencia_service import MargenSolvenciaService
 from src.services.reserva_service import ReservaService
+from src.repositories.factores_pago_repository import JsonFactoresPagoRepository
 
 
 class CotizadorService:
@@ -26,6 +27,7 @@ class CotizadorService:
         self.parametros_repository = JsonParametrosRepository()
         self.tasa_interes_repository = JsonTasaInteresRepository()
         self.devolucion_repository = JsonDevolucionRepository()
+        self.factores_pago_repository = JsonFactoresPagoRepository()
         self.expuestos_mes = ExpuestosMesService()
         self.gastos_service = GastosService()
         self.flujo_resultado_service = FlujoResultadoService()
@@ -47,6 +49,8 @@ class CotizadorService:
 
         # Obtener tasas de interés - pasar el diccionario completo sin procesar
         tasas_interes_data = self.tasa_interes_repository.get_tasas_interes()
+        
+        factores_pago = self.factores_pago_repository.get_factores_pago()
 
         # Extraer la prima del esquema de entrada si es RUMBO
         prima = 0.0
@@ -68,6 +72,9 @@ class CotizadorService:
             periodo_vigencia=periodo_vigencia,
             tasas_interes_data=tasas_interes_data,
             periodo_pago_primas=periodo_pago_primas,
+            frecuencia_pago_primas=cotizacion_input.parametros.frecuencia_pago_primas,
+            factores_pago=factores_pago,
+            suma_asegurada=cotizacion_input.parametros.suma_asegurada,
         )
 
         # Convertir el modelo de dominio a esquema de respuesta
@@ -302,16 +309,8 @@ class CotizadorService:
         print("\n")
         print("auxiliar_vna [COTIZACION ESPERADA] => ", auxiliar_vna)
 
-        """A PARTIR DE 100% se empezara a cotizar con aumento en dos decimas y vas a comparar el menor valor, cuando encuentres el % que da un vna super cercano a 0, ese sera el porcentaje de devolucion y das el stop, todo esto llamando a :
-        
-              rescate = self.reserva_service.calcular_rescate(
-            periodo_vigencia=periodo_vigencia,
-            prima=cotizacion_input.parametros.prima,
-            fraccionamiento_primas=parametros_almacenados.fraccionamiento_primas,
-            porcentaje_devolucion=cotizacion_input.parametros.porcentaje_devolucion, # esto debera cambiar ahora es apartir de 100 en adelante y el % que te de un vna cercano a 0, ese sera el porcentaje de devolucion y das el stop con ese % 
-        )
-        
-        """
+        print("\n")
+        print("factores_pago => ", self.factores_pago_repository.get_factores_pago())
 
         # Calcular el porcentaje de devolución óptimo si es producto RUMBO
         porcentaje_devolucion_optimo = None
@@ -357,6 +356,14 @@ class CotizadorService:
             )
             print(f"TREA para el porcentaje óptimo: {trea * 100:.6f}%")
 
+            aporte_total = CotizadorService.calcular_aporte_total(
+                periodo_pago_primas, prima
+            )
+            print(f"Aporte total: {aporte_total:.2f}")
+
+            # devolucion_total = CotizadorService.calcular_devolucion_total(porcentaje_devolucion_optimo, periodo_pago_primas, suma_asegurada, tasa_frecuencia_seleccionada )
+            devolucion_total = 1
+
         # Crear la respuesta base
         respuesta = CotizacionOutput(
             producto=cotizacion_input.producto,
@@ -372,8 +379,13 @@ class CotizadorService:
         if cotizacion_input.producto == TipoProducto.RUMBO:
             if porcentaje_devolucion_optimo:
                 rumbo = {
-                    "porcentaje_devolucion": str(porcentaje_devolucion_optimo),
-                    "trea": str(trea),
+                    "porcentaje_devolucion": str(
+                        round(porcentaje_devolucion_optimo, 2)
+                    ),
+                    "trea": str(round(trea * 100, 2)),
+                    "aporte_total": str(aporte_total),
+                    "devolucion_total": str(devolucion_total),
+                    "ganancia_total": str(devolucion_total - aporte_total),
                 }
                 respuesta.rumbo = rumbo
                 # respuesta.porcentaje_devolucion = str(porcentaje_devolucion_optimo)
@@ -456,6 +468,9 @@ class CotizadorService:
             tasa_inversion=dominio.tasa_inversion,
             inflacion_mensual=dominio.inflacion_mensual,
             tasa_costo_capital_mes=dominio.tasa_costo_capital_mes,
+            factor_pago=dominio.factor_pago,
+            prima_para_redondeo=dominio.prima_para_redondeo,
+            tasa_frecuencia_seleccionada=dominio.tasa_frecuencia_seleccionada,
         )
 
     # En el futuro, podrías tener métodos específicos para cada producto:
@@ -703,5 +718,11 @@ class CotizadorService:
         tasa_mensual = newton_raphson(funcion_tasa, derivada_f, 0.01)
         trea = (1 + tasa_mensual) ** 12 - 1
         return trea
+
+    def calcular_aporte_total(periodo_pago_primas, prima):
+        return periodo_pago_primas * prima * 12
+
+    def calcular_devolucion_total():
+        return 1
 
     # ! consultar el valor maximo de porcentaje de devolucion para rumbo - falta TREA

@@ -118,6 +118,7 @@ class ParametrosCalculados(BaseModel):
     tasa_costo_capital_mes: float
     factor_pago: float
     prima_para_redondeo: float
+    tasa_frecuencia_seleccionada: float
 
 
 # Salida común para todos los productos
