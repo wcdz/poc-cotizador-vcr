@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from src.core.constans import TASA_MENSUALIZACION, FACTOR_AJUSTE, FACTOR_RESERVA
 from src.helpers.tasa_interes_reserva import tasa_interes_reserva
+from src.common.frecuencia_pago import FrecuenciaPago
+from typing import Dict
 
 
 @dataclass
@@ -22,6 +24,8 @@ class ParametrosCalculados:
     periodo_vigencia: int
     tasas_interes_data: dict
     periodo_pago_primas: int
+    frecuencia_pago_primas: FrecuenciaPago
+    factores_pago: Dict[str, float]
 
     # Constantes desde configuración
     tasa_mensualizacion: float = TASA_MENSUALIZACION
@@ -38,6 +42,8 @@ class ParametrosCalculados:
     tasa_inversion: float = field(init=False)
     inflacion_mensual: float = field(init=False)
     tasa_costo_capital_mes: float = field(init=False)
+    factor_pago: float = field(init=False)
+    prima_para_redondeo: float = field(init=False)
 
     def __post_init__(self):
         """
@@ -54,7 +60,9 @@ class ParametrosCalculados:
         self.tasa_inversion = self.calcular_tasa_inversion()
         self.inflacion_mensual = self.calcular_inflacion_mensual()
         self.tasa_costo_capital_mes = self.calcular_tasa_costo_capital_mes()
-
+        self.factor_pago = self.calcular_factor_pago()
+        self.prima_para_redondeo = self.calcular_prima_para_redondeo()
+        
     def calcular_adquisicion_fijo_poliza(self) -> float:
         """Calcula el gasto de adquisición fijo por póliza"""
         return self.gasto_adquisicion / self.prima
@@ -105,3 +113,14 @@ class ParametrosCalculados:
     def calcular_tasa_costo_capital_mes(self) -> float:
         """Calcula la tasa de costo capital mensual"""
         return (1 + self.tasa_costo_capital_tir) ** (1 / 12) - 1
+    
+    def calcular_factor_pago(self) -> float:
+        """
+        Calcula el factor de pago según la frecuencia y el diccionario de factores.
+        """
+        clave = self.frecuencia_pago_primas.value.lower()  # "anual", "semestral", etc.
+        return float(self.factores_pago.get(clave, 1.0))  # 1.0 por defecto si no existe
+
+    def calcular_prima_para_redondeo(self) -> float:
+        """Calcula la prima para redondeo"""
+        return self.prima / self.factor_pago * self.factor_pago

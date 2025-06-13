@@ -116,6 +116,8 @@ class ParametrosCalculados(BaseModel):
     tasa_interes_mensual: float
     tasa_inversion: float
     tasa_costo_capital_mes: float
+    factor_pago: float
+    prima_para_redondeo: float
 
 
 # Salida común para todos los productos
