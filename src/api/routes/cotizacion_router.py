@@ -14,7 +14,9 @@ def get_cotizador_service():
     return CotizadorService()
 
 
-@router.post("/cotizar", response_model=CotizacionOutput)
+@router.post(
+    "/cotizar", response_model=CotizacionOutput, response_model_exclude_none=True
+)
 async def cotizar(
     cotizacion: CotizacionInput,
     service: CotizadorService = Depends(get_cotizador_service),
