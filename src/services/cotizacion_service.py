@@ -18,7 +18,7 @@ from src.services.flujo_resultado_service import FlujoResultadoService
 from src.services.margen_solvencia_service import MargenSolvenciaService
 from src.services.reserva_service import ReservaService
 from src.repositories.factores_pago_repository import JsonFactoresPagoRepository
-from src.utils.frecuencia_meses import frecuencia_meses
+from src.models.products.rumbo import Rumbo
 
 
 class CotizadorService:
@@ -34,6 +34,13 @@ class CotizadorService:
         self.flujo_resultado_service = FlujoResultadoService()
         self.margen_solvencia_service = MargenSolvenciaService()
         self.reserva_service = ReservaService()
+        self.rumbo = Rumbo(
+            self.expuestos_mes,
+            self.flujo_resultado_service,
+            self.gastos_service,
+            self.reserva_service,
+            self.margen_solvencia_service,
+        )
 
     def cotizar(self, cotizacion_input: CotizacionInput) -> CotizacionOutput:
         """
@@ -312,69 +319,69 @@ class CotizadorService:
             tasa_costo_capital_mes=parametros_calculados.tasa_costo_capital_mes,
         )
 
-        print("\n")
-        print("auxiliar_vna [COTIZACION ESPERADA] => ", auxiliar_vna)
+        # print("auxiliar_vna [COTIZACION ESPERADA] => ", auxiliar_vna)
 
-        print("\n")
-        print("factores_pago => ", self.factores_pago_repository.get_factores_pago())
+        # print("factores_pago => ", self.factores_pago_repository.get_factores_pago())
 
         # Calcular el porcentaje de devolución óptimo si es producto RUMBO
         porcentaje_devolucion_optimo = None
         if cotizacion_input.producto == TipoProducto.RUMBO:
-            porcentaje_devolucion_optimo = self._calcular_porcentaje_devolucion_optimo(
-                cotizacion_input=cotizacion_input,
-                parametros_almacenados=parametros_almacenados,
-                tasas_interes_data=tasas_interes_data,
-                prima=prima,
-                flujo_resultado_service=self.flujo_resultado_service,
-                parametros_calculados=parametros_calculados,
-                periodo_vigencia=periodo_vigencia,
-                periodo_pago_primas=periodo_pago_primas,
-                expuestos_mes=expuestos_mes,
-                gastos=gastos,
-                primas_recurrentes=primas_recurrentes,
-                siniestros=siniestros,
-                flujo_accionista=flujo_accionista,
-                flujo_pasivo=flujo_pasivo,
-                saldo_reserva=saldo_reserva,
-                moce=moce,
-                reserva_fin_año=reserva_fin_año,
-                margen_solvencia=margen_solvencia,
-                varianza_margen_solvencia=varianza_margen_solvencia,
-                ingreso_total_inversiones=ingreso_total_inversiones,
-                varianza_reserva=varianza_reserva,
-                varianza_moce=varianza_moce,
-                gastos_mantenimiento=gastos_mantenimiento,
-                gasto_adquisicion=gasto_adquisicion,
-                comision=comision,
-                IR=IR,
-                utilidad_pre_pi_ms=utilidad_pre_pi_ms,
+            porcentaje_devolucion_optimo = (
+                self.rumbo.calcular_porcentaje_devolucion_optimo(
+                    cotizacion_input=cotizacion_input,
+                    parametros_almacenados=parametros_almacenados,
+                    tasas_interes_data=tasas_interes_data,
+                    prima=prima,
+                    flujo_resultado_service=self.flujo_resultado_service,
+                    parametros_calculados=parametros_calculados,
+                    periodo_vigencia=periodo_vigencia,
+                    periodo_pago_primas=periodo_pago_primas,
+                    expuestos_mes=expuestos_mes,
+                    gastos=gastos,
+                    primas_recurrentes=primas_recurrentes,
+                    siniestros=siniestros,
+                    flujo_accionista=flujo_accionista,
+                    flujo_pasivo=flujo_pasivo,
+                    saldo_reserva=saldo_reserva,
+                    moce=moce,
+                    reserva_fin_año=reserva_fin_año,
+                    margen_solvencia=margen_solvencia,
+                    varianza_margen_solvencia=varianza_margen_solvencia,
+                    ingreso_total_inversiones=ingreso_total_inversiones,
+                    varianza_reserva=varianza_reserva,
+                    varianza_moce=varianza_moce,
+                    gastos_mantenimiento=gastos_mantenimiento,
+                    gasto_adquisicion=gasto_adquisicion,
+                    comision=comision,
+                    IR=IR,
+                    utilidad_pre_pi_ms=utilidad_pre_pi_ms,
+                )
             )
 
-            print(
-                "\nPorcentaje de devolución óptimo calculado:",
-                porcentaje_devolucion_optimo,
-            )
+            # print("\nPorcentaje de devolución óptimo calculado:",porcentaje_devolucion_optimo)
 
             # Calcular y mostrar la TREA en consola usando el porcentaje óptimo
-            trea = CotizadorService.calcular_trea(
+            trea = self.rumbo._calcular_trea(
                 periodo_pago_primas, prima, porcentaje_devolucion_optimo
             )
-            print(f"TREA para el porcentaje óptimo: {trea * 100:.6f}%")
+            # print(f"TREA para el porcentaje óptimo: {trea * 100:.6f}%")
 
-            aporte_total = CotizadorService.calcular_aporte_total(
-                periodo_pago_primas, prima
-            )
-            print(f"Aporte total: {aporte_total:.2f}")
+            aporte_total = self.rumbo.calcular_aporte_total(periodo_pago_primas, prima)
+            # print(f"Aporte total: {aporte_total:.2f}")
 
-            devolucion_total = CotizadorService.calcular_devolucion_total(
+            devolucion_total = self.rumbo.calcular_devolucion_total(
                 tasa_frecuencia_seleccionada=parametros_calculados.tasa_frecuencia_seleccionada,
                 suma_asegurada=suma_asegurada,
                 frecuencia_pago_primas=cotizacion_input.parametros.frecuencia_pago_primas,
                 periodo_pago_primas=periodo_pago_primas,
                 porcentaje_devolucion_optimo=porcentaje_devolucion_optimo,
             )
-            print(f"Devolución total: {devolucion_total:.2f}")
+            # print(f"Devolución total: {devolucion_total:.2f}")
+
+            ganancia_total = self.rumbo.calcular_ganancia_total(
+                aporte_total=aporte_total,
+                devolucion_total=devolucion_total,
+            )
 
         # Crear la respuesta base
         respuesta = CotizacionOutput(
@@ -382,9 +389,6 @@ class CotizadorService:
             parametros_entrada=cotizacion_input.parametros,
             parametros_almacenados=parametros_almacenados,
             parametros_calculados=parametros_calculados,
-            # expuestos_mes=expuestos_mes,
-            # gastos=gastos,
-            # flujo_resultado=flujo_resultado,
         )
 
         # Añadir campos específicos según el producto
@@ -402,13 +406,12 @@ class CotizadorService:
                     "porcentaje_devolucion": str(
                         round(porcentaje_devolucion_optimo, 2)
                     ),
-                    "trea": str(round(trea * 100, 2)),
+                    "trea": str(round(trea, 2)),
                     "aporte_total": str(aporte_total),
                     "devolucion_total": str(devolucion_total),
-                    "ganancia_total": str(devolucion_total - aporte_total),
+                    "ganancia_total": str(ganancia_total),
                 }
                 respuesta.rumbo = rumbo
-                # respuesta.porcentaje_devolucion = str(porcentaje_devolucion_optimo)
             else:
                 # respuesta.porcentaje_devolucion = ""
                 rumbo = {
@@ -494,269 +497,3 @@ class CotizadorService:
             prima_para_redondeo=dominio.prima_para_redondeo,
             tasa_frecuencia_seleccionada=dominio.tasa_frecuencia_seleccionada,
         )
-
-    # En el futuro, podrías tener métodos específicos para cada producto:
-    # def _calcular_rumbo(self, parametros)
-    # def _calcular_endosos(self, parametros)
-
-    def _calcular_porcentaje_devolucion_optimo(
-        self,
-        cotizacion_input,
-        parametros_almacenados,
-        tasas_interes_data,
-        prima,
-        flujo_resultado_service,
-        parametros_calculados,
-        periodo_vigencia,
-        periodo_pago_primas,
-        *args,
-        **kwargs,
-    ):
-        def evaluar_vna(porcentaje):
-            expuestos_mes = self.expuestos_mes.calcular_expuestos_mes(
-                edad_actuarial=cotizacion_input.parametros.edad_actuarial,
-                sexo=cotizacion_input.parametros.sexo,
-                fumador=cotizacion_input.parametros.fumador,
-                frecuencia_pago_primas=cotizacion_input.parametros.frecuencia_pago_primas,
-                periodo_vigencia=periodo_vigencia,
-                periodo_pago_primas=periodo_pago_primas,
-                ajuste_mortalidad=parametros_almacenados.ajuste_mortalidad,
-            )
-            siniestros = flujo_resultado_service.calcular_siniestros(
-                expuestos_mes=expuestos_mes,
-                suma_asegurada=parametros_almacenados.suma_asegurada_rumbo,
-            )
-            primas_recurrentes = flujo_resultado_service.calcular_primas_recurrentes(
-                expuestos_mes=expuestos_mes,
-                periodo_pago_primas=periodo_pago_primas,
-                frecuencia_pago_primas=cotizacion_input.parametros.frecuencia_pago_primas,
-                prima=prima,
-            )
-            gastos = self.gastos_service.calcular_gastos(
-                periodo_vigencia=periodo_vigencia,
-                periodo_pago_primas=periodo_pago_primas,
-                prima=prima,
-                expuestos_mes=expuestos_mes,
-                frecuencia_pago_primas=cotizacion_input.parametros.frecuencia_pago_primas,
-                mantenimiento_poliza=parametros_calculados.mantenimiento_poliza,
-                moneda=parametros_almacenados.moneda,
-                valor_dolar=parametros_almacenados.valor_dolar,
-                valor_soles=parametros_almacenados.valor_soles,
-                tiene_asistencia=parametros_almacenados.tiene_asistencia,
-                costo_mensual_asistencia_funeraria=parametros_almacenados.costo_mensual_asistencia_funeraria,
-                inflacion_mensual=parametros_calculados.inflacion_mensual,
-            )
-            gastos_mantenimiento = (
-                flujo_resultado_service.calcular_gastos_mantenimiento(
-                    gastos_mantenimiento=gastos,
-                )
-            )
-            gasto_adquisicion = flujo_resultado_service.calcular_gasto_adquisicion(
-                gasto_adquisicion=parametros_almacenados.gasto_adquisicion,
-            )
-            comision = flujo_resultado_service.calcular_comision(
-                primas_recurrentes=primas_recurrentes,
-                asistencia=parametros_almacenados.tiene_asistencia,
-                frecuencia_pago_primas=cotizacion_input.parametros.frecuencia_pago_primas,
-                costo_asistencia_funeraria=parametros_almacenados.costo_mensual_asistencia_funeraria,
-                expuestos_mes=expuestos_mes,
-                comision=parametros_almacenados.comision,
-            )
-            rescate = self.reserva_service.calcular_rescate(
-                periodo_vigencia=periodo_vigencia,
-                prima=prima,
-                fraccionamiento_primas=parametros_almacenados.fraccionamiento_primas,
-                porcentaje_devolucion=porcentaje,
-            )
-            rescates = flujo_resultado_service.calcular_rescates(
-                expuestos_mes=expuestos_mes,
-                rescate=rescate,
-            )
-            flujo_pasivo_ = self.reserva_service.calcular_flujo_pasivo(
-                siniestros,
-                rescates,
-                gastos_mantenimiento,
-                comision,
-                gasto_adquisicion,
-                primas_recurrentes,
-            )
-            saldo_reserva_ = self.reserva_service.calcular_saldo_reserva(
-                flujo_pasivo_,
-                parametros_calculados.tasa_interes_mensual,
-                rescate,
-                expuestos_mes,
-            )
-            moce_ = self.reserva_service.calcular_moce(
-                tasa_costo_capital_mensual=parametros_calculados.tasa_costo_capital_mensual,
-                tasa_interes_mensual=parametros_calculados.tasa_interes_mensual,
-                margen_reserva=parametros_almacenados.margen_solvencia,
-                saldo_reserva=saldo_reserva_,
-            )
-            reserva_fin_año_ = self.margen_solvencia_service.calcular_reserva_fin_año(
-                saldo_reserva=saldo_reserva_,
-                moce=moce_,
-            )
-            margen_solvencia_ = self.margen_solvencia_service.calcular_margen_solvencia(
-                reserva_fin_año=reserva_fin_año_,
-                margen_solvencia_reserva=parametros_calculados.reserva,
-            )
-            varianza_margen_solvencia_ = (
-                self.margen_solvencia_service.calcular_varianza_margen_solvencia(
-                    margen_solvencia=margen_solvencia_,
-                )
-            )
-            ingreso_inversiones_ = (
-                self.margen_solvencia_service.calcular_ingreso_inversiones(
-                    reserva_fin_año=reserva_fin_año_,
-                    tasa_inversion=parametros_calculados.tasa_inversion,
-                )
-            )
-            ingresiones_inversiones_margen_solvencia_ = (
-                self.margen_solvencia_service.ingresiones_inversiones_margen_solvencia(
-                    margen_solvencia=margen_solvencia_,
-                    tasa_inversion=parametros_calculados.tasa_inversion,
-                )
-            )
-            ingreso_total_inversiones_ = self.margen_solvencia_service.calcular_ingreso_total_inversiones(
-                ingreso_inversiones=ingreso_inversiones_,
-                ingresiones_inversiones_margen_solvencia=ingresiones_inversiones_margen_solvencia_,
-            )
-            varianza_moce_ = self.reserva_service.calcular_varianza_moce(moce_)
-            varianza_reserva_ = self.reserva_service.calcular_varianza_reserva(
-                saldo_reserva_
-            )
-            variacion_reserva_ = flujo_resultado_service.calcular_variacion_reserva(
-                varianza_reserva=varianza_reserva_,
-                varianza_moce=varianza_moce_,
-            )
-            utilidad_pre_ = flujo_resultado_service.calcular_utilidad_pre_pi_ms(
-                primas_recurrentes,
-                comision,
-                gasto_adquisicion,
-                gastos_mantenimiento,
-                siniestros,
-                rescates,
-                variacion_reserva_,
-            )
-            IR_ = flujo_resultado_service.calcular_IR(
-                utilidad_pre_pi_ms=utilidad_pre_,
-                impuesto_renta=parametros_almacenados.impuesto_renta,
-            )
-            flujo_accionista_ = flujo_resultado_service.calcular_flujo_accionista(
-                utilidad_pre_pi_ms=utilidad_pre_,
-                varianza_margen_solvencia=varianza_margen_solvencia_,
-                IR=IR_,
-                ingreso_total_inversiones=ingreso_total_inversiones_,
-            )
-            vna = flujo_resultado_service.auxiliar(
-                flujo_accionista=flujo_accionista_,
-                tasa_costo_capital_mes=parametros_calculados.tasa_costo_capital_mes,
-            )
-            return vna
-
-        # --- Búsqueda por bisección con tope dinámico ---
-        a = 100.0
-        b = 130.0
-        max_b = 200.0
-        paso_b = 10.0
-        tol = 1e-6
-        max_iter = 50
-        vna_a = evaluar_vna(a)
-        vna_b = evaluar_vna(b)
-
-        # Si no hay cruce, aumentar b dinámicamente
-        while vna_a * vna_b > 0 and b < max_b:
-            b += paso_b
-            vna_b = evaluar_vna(b)
-        if abs(vna_a) < tol:
-            return a
-        if abs(vna_b) < tol:
-            return b
-        if vna_a * vna_b > 0:
-            # No hay cruce de signo, devolvemos el mejor de los extremos
-            return a if abs(vna_a) < abs(vna_b) else b
-        for _ in range(max_iter):
-            c = (a + b) / 2.0
-            vna_c = evaluar_vna(c)
-            if abs(vna_c) < tol:
-                return c
-            if vna_a * vna_c < 0:
-                b = c
-                vna_b = vna_c
-            else:
-                a = c
-                vna_a = vna_c
-            if abs(b - a) < tol:
-                break
-        # Devolver el punto más cercano a cero
-
-        if abs(vna_a) < abs(vna_b):
-            print(f"Porcentaje óptimo A: {a:.5f}% con VNA={vna_a:.10f}")
-            return a
-        else:
-            print(f"Porcentaje óptimo B: {b:.5f}% con VNA={vna_b:.10f}")
-            return b
-
-    def calcular_trea(periodo_pago_primas, prima, porcentaje_devolucion):
-        """
-        Calcula la TREA según la fórmula de Excel:
-        =(1+TASA(C8*12;C22;0;-(C22*C8*C11*12);1))^(12)-1
-        Donde:
-        C8 = periodo de pago de primas (años)
-        C22 = prima
-        C11 = porcentaje de devolución (en porcentaje, ej: 125.32 para 125.32%)
-        """
-        nper = periodo_pago_primas * 12
-        pmt = prima
-        pv = 0
-        fv = -(prima * periodo_pago_primas * 12 * (porcentaje_devolucion / 100))
-        tipo = 1  # pagos al inicio
-
-        def funcion_tasa(r):
-            if r == 0:
-                return pmt * nper + pv + fv
-            return (
-                pmt * (1 + r * tipo) * (1 - (1 + r) ** -nper) / r
-                + pv
-                + fv / ((1 + r) ** nper)
-            )
-
-        def derivada_f(r, h=1e-6):
-            return (funcion_tasa(r + h) - funcion_tasa(r - h)) / (2 * h)
-
-        def newton_raphson(f, f_prime, x0, tol=1e-7, max_iter=100):
-            x = x0
-            for _ in range(max_iter):
-                fx = f(x)
-                dfx = f_prime(x)
-                if dfx == 0:
-                    raise Exception("Derivada cero")
-                x_new = x - fx / dfx
-                if abs(x_new - x) < tol:
-                    return x_new
-                x = x_new
-            raise Exception("No converge")
-
-        tasa_mensual = newton_raphson(funcion_tasa, derivada_f, 0.01)
-        trea = (1 + tasa_mensual) ** 12 - 1
-        return trea
-
-    def calcular_aporte_total(periodo_pago_primas, prima):
-        return periodo_pago_primas * prima * 12
-
-    def calcular_devolucion_total(
-        tasa_frecuencia_seleccionada,
-        suma_asegurada,
-        frecuencia_pago_primas,
-        periodo_pago_primas,
-        porcentaje_devolucion_optimo,
-    ):
-
-        _frecuencia_pago_primas = frecuencia_meses(frecuencia_pago_primas)
-        _porcentaje_devolucion_optimo = porcentaje_devolucion_optimo / 100
-
-        return (
-            tasa_frecuencia_seleccionada * suma_asegurada * 12 / _frecuencia_pago_primas
-        ) * (periodo_pago_primas * _porcentaje_devolucion_optimo)
-
-    # ! consultar el valor maximo de porcentaje de devolucion para rumbo - falta TREA
