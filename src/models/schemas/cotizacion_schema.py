@@ -30,7 +30,9 @@ class ParametrosBase(BaseModel):
         le=EDAD_MAXIMA_PERMANENCIA,
         description="Edad actuarial del asegurado",
     )
-    moneda: Moneda
+    moneda: Optional[Moneda] = Field(
+        default=Moneda.SOLES, description="Moneda de la poliza"
+    )
     periodo_vigencia: int = Field(
         ..., ge=MINIMO_PERIODO_VIGENCIA, description="Periodo de vigencia en años"
     )
@@ -39,15 +41,19 @@ class ParametrosBase(BaseModel):
         ge=MINIMO_PERIODO_PAGO_PRIMAS,
         description="Periodo de pago de primas en años",
     )
-    suma_asegurada: float = Field(
-        ..., gt=MINIMO_SUMAS_ASEGURADAS, description="Suma asegurada"
+    suma_asegurada: Optional[float] = Field(
+        default=0.01, gt=MINIMO_SUMAS_ASEGURADAS, description="Suma asegurada"
     )
     sexo: Sexo
-    frecuencia_pago_primas: FrecuenciaPago
-    fumador: bool = Field(..., description="Indica si el asegurado es fumador")
-    asistencia: bool = Field(..., description="Indica si el asegurado tiene asistencia")
-    porcentaje_devolucion: float = Field(
-        ..., gt=MINIMO_PORCENTAJE_DEVOLUCION, description="Porcentaje de devolución"
+    frecuencia_pago_primas: Optional[FrecuenciaPago] = Field(
+        default=FrecuenciaPago.MENSUAL, description="Frecuencia de pago de primas"
+    )
+    fumador: Optional[bool] = Field(
+        default=False, description="Indica si el asegurado es fumador"
+    )
+    # asistencia: Optional[bool] = Field(..., description="Indica si el asegurado tiene asistencia")
+    porcentaje_devolucion: Optional[float] = Field(
+        default=100, gt=MINIMO_PORCENTAJE_DEVOLUCION, description="Porcentaje de devolución"
     )
 
 
@@ -104,6 +110,7 @@ class ParametrosAlmacenados(BaseModel):
     comision: float
     costo_asistencia_funeraria: float
     impuesto_renta: float
+    suma_asegurada_rumbo: float
 
 
 class ParametrosCalculados(BaseModel):
@@ -131,7 +138,7 @@ class CotizacionOutput(BaseModel):
     # gastos: Gastos
     # flujo_resultado: FlujoResultado
     # Campos opcionales específicos para cada producto
-    #porcentaje_devolucion: Optional[str] = None  # Para RUMBO
-    #prima: Optional[str] = None  # Para ENDOSOS
+    # porcentaje_devolucion: Optional[str] = None  # Para RUMBO
+    # prima: Optional[str] = None  # Para ENDOSOS
     rumbo: Optional[dict] = None  # Para RUMBO con porcentaje_devolucion y trea
     endosos: Optional[dict] = None  # Para ENDOSOS con porcentaje_devolucion y trea
