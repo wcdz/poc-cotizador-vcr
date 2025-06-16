@@ -346,3 +346,14 @@ class Reserva:
         variaciones.append(-saldo_reserva[-1])
 
         return variaciones
+
+    def calcular_porcentaje_devolucion_mensual_anual(
+        self,
+        periodo_vigencia: int,
+        porcentaje_devolucion_optimo: float,
+        devolucion: list[dict],
+    ) -> list[float]:
+        return [
+            x["plazo_pago_primas"].get(str(x["año_poliza"]), 0.0)
+            for x in devolucion[1:periodo_vigencia]
+        ] + [round(porcentaje_devolucion_optimo, 2)]

@@ -98,3 +98,15 @@ class ReservaService:
 
     def calcular_varianza_reserva(self, saldo_reserva: list[float]):
         return self.reserva.calcular_varianza_reserva(saldo_reserva)
+
+    # TODO: Solo para RUMBO [Pendiente para Endosos y VCP]
+    def calcular_tabla_devolucion(
+        self, periodo_vigencia: int, porcentaje_devolucion_optimo: float
+    ):
+        # Obtener los datos de devolución desde el repositorio
+        devolucion = self.devolucion_repository.get_devolucion_data()
+        return self.reserva.calcular_porcentaje_devolucion_mensual_anual(
+            periodo_vigencia,
+            porcentaje_devolucion_optimo,
+            devolucion,
+        )
