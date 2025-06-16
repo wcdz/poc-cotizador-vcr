@@ -18,6 +18,7 @@ from src.services.flujo_resultado_service import FlujoResultadoService
 from src.services.margen_solvencia_service import MargenSolvenciaService
 from src.services.reserva_service import ReservaService
 from src.repositories.factores_pago_repository import JsonFactoresPagoRepository
+from src.utils.frecuencia_meses import frecuencia_meses
 
 
 class CotizadorService:
@@ -49,7 +50,7 @@ class CotizadorService:
 
         # Obtener tasas de interés - pasar el diccionario completo sin procesar
         tasas_interes_data = self.tasa_interes_repository.get_tasas_interes()
-        
+
         factores_pago = self.factores_pago_repository.get_factores_pago()
 
         # Extraer la prima del esquema de entrada si es RUMBO
@@ -58,6 +59,7 @@ class CotizadorService:
         periodo_pago_primas = cotizacion_input.parametros.periodo_pago_primas
         if cotizacion_input.producto == TipoProducto.RUMBO:
             prima = cotizacion_input.parametros.prima
+            suma_asegurada = parametros_almacenados.suma_asegurada_rumbo
 
         # Crear el modelo de dominio con los parámetros necesarios para los cálculos
         parametros_dominio = ParametrosCalculadosDomain(
@@ -74,7 +76,7 @@ class CotizadorService:
             periodo_pago_primas=periodo_pago_primas,
             frecuencia_pago_primas=cotizacion_input.parametros.frecuencia_pago_primas,
             factores_pago=factores_pago,
-            suma_asegurada=cotizacion_input.parametros.suma_asegurada,
+            suma_asegurada=suma_asegurada,
         )
 
         # Convertir el modelo de dominio a esquema de respuesta
@@ -83,7 +85,11 @@ class CotizadorService:
         expuestos_mes = self.expuestos_mes.calcular_expuestos_mes(
             edad_actuarial=cotizacion_input.parametros.edad_actuarial,
             sexo=cotizacion_input.parametros.sexo,
-            fumador=cotizacion_input.parametros.fumador,
+            fumador=(
+                cotizacion_input.parametros.fumador
+                if cotizacion_input.parametros.fumador
+                else False
+            ),
             frecuencia_pago_primas=cotizacion_input.parametros.frecuencia_pago_primas,
             periodo_vigencia=periodo_vigencia,
             periodo_pago_primas=periodo_pago_primas,
@@ -117,7 +123,7 @@ class CotizadorService:
 
         siniestros = self.flujo_resultado_service.calcular_siniestros(
             expuestos_mes=expuestos_mes,
-            suma_asegurada=cotizacion_input.parametros.suma_asegurada,
+            suma_asegurada=suma_asegurada,
         )
 
         # print("\n")
@@ -361,8 +367,14 @@ class CotizadorService:
             )
             print(f"Aporte total: {aporte_total:.2f}")
 
-            # devolucion_total = CotizadorService.calcular_devolucion_total(porcentaje_devolucion_optimo, periodo_pago_primas, suma_asegurada, tasa_frecuencia_seleccionada )
-            devolucion_total = 1
+            devolucion_total = CotizadorService.calcular_devolucion_total(
+                tasa_frecuencia_seleccionada=parametros_calculados.tasa_frecuencia_seleccionada,
+                suma_asegurada=suma_asegurada,
+                frecuencia_pago_primas=cotizacion_input.parametros.frecuencia_pago_primas,
+                periodo_pago_primas=periodo_pago_primas,
+                porcentaje_devolucion_optimo=porcentaje_devolucion_optimo,
+            )
+            print(f"Devolución total: {devolucion_total:.2f}")
 
         # Crear la respuesta base
         respuesta = CotizacionOutput(
@@ -377,6 +389,14 @@ class CotizadorService:
 
         # Añadir campos específicos según el producto
         if cotizacion_input.producto == TipoProducto.RUMBO:
+            parametros_dict = cotizacion_input.parametros.dict()
+            parametros_dict.pop("suma_asegurada", None)
+            parametros_dict.pop("porcentaje_devolucion", None)
+            parametros_dict.pop("moneda", None)
+            parametros_dict.pop("frecuencia_pago_primas", None)
+
+            respuesta.parametros_entrada = parametros_dict
+
             if porcentaje_devolucion_optimo:
                 rumbo = {
                     "porcentaje_devolucion": str(
@@ -432,6 +452,7 @@ class CotizadorService:
             "costo_asistencia_funeraria", 0.01
         )
         impuesto_renta = parametros_dict.get("impuesto_renta", 0.01)
+        suma_asegurada_rumbo = parametros_dict.get("suma_asegurada_rumbo", 0.01)
 
         return ParametrosAlmacenadosSchema(
             gasto_adquisicion=gasto_adquisicion,
@@ -452,6 +473,7 @@ class CotizadorService:
             comision=comision,
             costo_asistencia_funeraria=costo_asistencia_funeraria,
             impuesto_renta=impuesto_renta,
+            suma_asegurada_rumbo=suma_asegurada_rumbo,
         )
 
     def _convertir_a_esquema(
@@ -502,7 +524,7 @@ class CotizadorService:
             )
             siniestros = flujo_resultado_service.calcular_siniestros(
                 expuestos_mes=expuestos_mes,
-                suma_asegurada=cotizacion_input.parametros.suma_asegurada,
+                suma_asegurada=parametros_almacenados.suma_asegurada_rumbo,
             )
             primas_recurrentes = flujo_resultado_service.calcular_primas_recurrentes(
                 expuestos_mes=expuestos_mes,
@@ -722,7 +744,19 @@ class CotizadorService:
     def calcular_aporte_total(periodo_pago_primas, prima):
         return periodo_pago_primas * prima * 12
 
-    def calcular_devolucion_total():
-        return 1
+    def calcular_devolucion_total(
+        tasa_frecuencia_seleccionada,
+        suma_asegurada,
+        frecuencia_pago_primas,
+        periodo_pago_primas,
+        porcentaje_devolucion_optimo,
+    ):
+
+        _frecuencia_pago_primas = frecuencia_meses(frecuencia_pago_primas)
+        _porcentaje_devolucion_optimo = porcentaje_devolucion_optimo / 100
+
+        return (
+            tasa_frecuencia_seleccionada * suma_asegurada * 12 / _frecuencia_pago_primas
+        ) * (periodo_pago_primas * _porcentaje_devolucion_optimo)
 
     # ! consultar el valor maximo de porcentaje de devolucion para rumbo - falta TREA
