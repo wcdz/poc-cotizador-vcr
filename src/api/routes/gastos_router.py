@@ -9,4 +9,4 @@ async def calcular_gastos():
     """
     Endpoint sencillo para gastos
     """
-    return {"message": "ok, funciona chamo :)"}
+    return {"message": "ok, funciona :)"}

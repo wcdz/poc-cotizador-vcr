@@ -6,6 +6,7 @@ from src.core.config import settings
 from src.api.routes import cotizacion_router  # Router unificado para productos
 from src.api.routes import expuestos_mes_router
 from src.api.routes import gastos_router
+from src.api.routes import coleccion_cotizacion_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -30,17 +31,10 @@ app.include_router(
     tags=["productos"],
 )
 
-# Router para cálculos actuariales de expuestos
 app.include_router(
-    expuestos_mes_router.router,
-    prefix=f"{settings.API_V1_STR}/calculos",
-    tags=["calculos"],
-)
-
-app.include_router(
-    gastos_router.router,
-    prefix=f"{settings.API_V1_STR}/calculos",
-    tags=["calculos"],
+    coleccion_cotizacion_router.router,
+    prefix=f"{settings.API_V1_STR}/productos",
+    tags=["productos"],
 )
 
 

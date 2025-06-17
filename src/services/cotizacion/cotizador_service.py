@@ -5,15 +5,18 @@ from src.models.schemas.cotizacion_schema import (
     TipoProducto,
 )
 from .strategies import CotizacionStrategy, RumboStrategy, EndososStrategy
+from src.repositories.periodos_cotizacion_repository import (
+    JsonPeriodosCotizacionRepository,
+)
 
 
 class CotizadorService:
     """
     Servicio unificado para cotizaciones de distintos productos
-    
+
     Utiliza el patrón Strategy para manejar diferentes tipos de productos
     y el patrón Pipeline para procesar los cálculos de manera ordenada.
-    
+
     ¡ANTES tenía 380 líneas de código en un solo método!
     ¡AHORA tiene 15 líneas en el método principal! 🚀
     """
@@ -34,23 +37,28 @@ class CotizadorService:
         """
         🔥 EL MÉTODO QUE ANTES ERA UN MONSTRUO DE 380 LÍNEAS
         🚀 AHORA ES HERMOSO Y TIENE SOLO 15 LÍNEAS
-        
+
         Realiza la cotización para el producto especificado.
         Utiliza la estrategia correspondiente según el tipo de producto.
-        
+
         Args:
             cotizacion_input: Datos de entrada para la cotización
-            
+
         Returns:
             CotizacionOutput: Resultado de la cotización
-            
+
         Raises:
             ValueError: Si el producto no es soportado
             Exception: Si hay errores en el proceso de cotización
         """
         # 1. Obtener estrategia
         strategy = self._get_strategy(cotizacion_input.producto)
-        
+        print(cotizacion_input.parametros.prima)
+        periodos_cotizacion_repository = JsonPeriodosCotizacionRepository()
+        periodos = periodos_cotizacion_repository.get_periodos_disponibles(
+            cotizacion_input.parametros.prima
+        )
+        print(periodos)
         # 2. Ejecutar cotización
         return strategy.execute(cotizacion_input)
 
@@ -62,7 +70,7 @@ class CotizadorService:
                 f"Producto {producto} no soportado. "
                 f"Productos disponibles: {available_products}"
             )
-        
+
         return self.strategies[producto]
 
     def get_supported_products(self) -> list:
@@ -81,5 +89,5 @@ class CotizadorService:
             return {
                 "error": str(e),
                 "producto": cotizacion_input.producto,
-                "supported_products": self.get_supported_products()
-            } 
+                "supported_products": self.get_supported_products(),
+            }
