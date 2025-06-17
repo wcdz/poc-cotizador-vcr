@@ -33,11 +33,11 @@ class ParametrosBase(BaseModel):
     moneda: Optional[Moneda] = Field(
         default=Moneda.SOLES, description="Moneda de la poliza"
     )
-    periodo_vigencia: int = Field(
-        ..., ge=MINIMO_PERIODO_VIGENCIA, description="Periodo de vigencia en años"
+    periodo_vigencia: Optional[int] = Field(
+        default=None, ge=MINIMO_PERIODO_VIGENCIA, description="Periodo de vigencia en años"
     )
-    periodo_pago_primas: int = Field(
-        ...,
+    periodo_pago_primas: Optional[int] = Field(
+        default=None,
         ge=MINIMO_PERIODO_PAGO_PRIMAS,
         description="Periodo de pago de primas en años",
     )
@@ -55,7 +55,6 @@ class ParametrosBase(BaseModel):
     porcentaje_devolucion: Optional[float] = Field(
         default=100, gt=MINIMO_PORCENTAJE_DEVOLUCION, description="Porcentaje de devolución"
     )
-
 
 # Parámetros específicos para RUMBO
 class ParametrosRumbo(ParametrosBase):
