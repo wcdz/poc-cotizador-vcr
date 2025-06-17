@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional, Union
 from enum import Enum
-from src.core.constans import (
+from src.core.constants import (
     PERIODO_VIGENCIA_MAXIMO,
     PERIODO_PAGO_PRIMAS_MAXIMO,
     EDAD_MINIMA_PARTICIPACION,

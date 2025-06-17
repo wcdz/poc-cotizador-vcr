@@ -4,7 +4,7 @@ from src.models.schemas.cotizacion_schema import (
     CotizacionOutput,
     TipoProducto,
 )
-from src.services.cotizacion_service import CotizadorService
+from src.services.cotizacion import CotizadorService
 
 router = APIRouter()
 

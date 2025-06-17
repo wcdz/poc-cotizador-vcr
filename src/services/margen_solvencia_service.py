@@ -1,4 +1,3 @@
-from src.repositories.parametros_repository import JsonParametrosRepository
 from src.services.flujo_resultado_service import FlujoResultadoService
 from src.models.domain.margen_solvencia import MargenSolvencia
 from src.services.reserva_service import ReservaService

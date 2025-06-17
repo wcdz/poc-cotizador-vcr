@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Tuple, Union
 from enum import Enum
 import math
 from decimal import Decimal
-from src.core.constans import PROBABILIDAD_VIVOS
+from src.core.constants import PROBABILIDAD_VIVOS
 
 from src.repositories.tabla_mortalidad_repository import (
     tabla_mortalidad_repository,

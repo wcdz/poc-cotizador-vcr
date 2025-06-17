@@ -10,29 +10,33 @@ from src.models.products.rumbo.evaluador_rumbo import (
     EvaluadorVNA,
     OptimizadorBiseccion,
 )
+from src.services.expuestos_mes_service import ExpuestosMesService
+from src.services.gastos_service import GastosService
+from src.services.flujo_resultado_service import FlujoResultadoService
+from src.services.reserva_service import ReservaService
+from src.services.margen_solvencia_service import MargenSolvenciaService
 
 
 class Rumbo:
     """
     Clase Rumbo optimizada con mejor separación de responsabilidades.
+    ✅ CORREGIDA: Ahora usa atributos directos con type hints en lugar de diccionario
     """
 
     def __init__(
         self,
-        expuestos_mes_service,
-        flujo_resultado_service,
-        gastos_service,
-        reserva_service,
-        margen_solvencia_service,
+        expuestos_mes_service: ExpuestosMesService,
+        flujo_resultado_service: FlujoResultadoService,
+        gastos_service: GastosService,
+        reserva_service: ReservaService,
+        margen_solvencia_service: MargenSolvenciaService,
     ):
-        # Organizar servicios en un diccionario para fácil acceso
-        self.servicios = {
-            "expuestos_mes": expuestos_mes_service,
-            "flujo_resultado": flujo_resultado_service,
-            "gastos": gastos_service,
-            "reserva": reserva_service,
-            "margen_solvencia": margen_solvencia_service,
-        }
+        # ✅ CORRECTO - Atributos directos con type safety
+        self.expuestos_mes_service = expuestos_mes_service
+        self.flujo_resultado_service = flujo_resultado_service
+        self.gastos_service = gastos_service
+        self.reserva_service = reserva_service
+        self.margen_solvencia_service = margen_solvencia_service
 
     def calcular_porcentaje_devolucion_optimo(
         self,
@@ -83,7 +87,14 @@ class Rumbo:
         )
 
         # 2. Crear evaluador VNA especializado
-        evaluador = EvaluadorVNA(params, self.servicios)
+        servicios = {
+            "expuestos_mes": self.expuestos_mes_service,
+            "flujo_resultado": self.flujo_resultado_service,
+            "gastos": self.gastos_service,
+            "reserva": self.reserva_service,
+            "margen_solvencia": self.margen_solvencia_service,
+        }
+        evaluador = EvaluadorVNA(params, servicios)
 
         # 3. Ejecutar optimización con algoritmo separado
         optimizador = OptimizadorBiseccion(evaluador.evaluar)
@@ -108,7 +119,7 @@ class Rumbo:
         periodo_pago_primas,
         porcentaje_devolucion_optimo,
     ):
-        """Cálculo de devolución total - sin cambios"""
+        """Cálculo de devolución total"""
         _frecuencia_pago_primas = frecuencia_meses(frecuencia_pago_primas)
         _porcentaje_devolucion_optimo = porcentaje_devolucion_optimo / 100
 
@@ -119,3 +130,11 @@ class Rumbo:
     def calcular_ganancia_total(self, aporte_total, devolucion_total):
         """Cálculo de ganancia total - sin cambios"""
         return devolucion_total - aporte_total
+
+    def calcular_tabla_devolucion(
+        self, periodo_vigencia: int, porcentaje_devolucion_optimo: float
+    ):
+        # ✅ CORRECTO - Type safety y autocompletado
+        return self.reserva_service.calcular_tabla_devolucion(
+            periodo_vigencia, porcentaje_devolucion_optimo
+        )

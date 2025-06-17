@@ -18,7 +18,7 @@ from src.services.flujo_resultado_service import FlujoResultadoService
 from src.services.margen_solvencia_service import MargenSolvenciaService
 from src.services.reserva_service import ReservaService
 from src.repositories.factores_pago_repository import JsonFactoresPagoRepository
-from src.models.products.rumbo import Rumbo
+from src.models.products.rumbo.rumbo import Rumbo
 
 
 class CotizadorService:
@@ -143,9 +143,9 @@ class CotizadorService:
             porcentaje_devolucion=cotizacion_input.parametros.porcentaje_devolucion,
         )
 
-        print("\n")
-        print(cotizacion_input.parametros.porcentaje_devolucion)
-        print("\n")
+        # print("\n")
+        # print(cotizacion_input.parametros.porcentaje_devolucion)
+        # print("\n")
 
         # print("rescate => ", rescate)
 
@@ -297,8 +297,8 @@ class CotizadorService:
             variacion_reserva=variacion_reserva,
         )
 
-        print("\n")
-        print("utilidad_pre_pi_ms => ", utilidad_pre_pi_ms)
+        # print("\n")
+        #print("utilidad_pre_pi_ms => ", utilidad_pre_pi_ms)
 
         IR = self.flujo_resultado_service.calcular_IR(
             utilidad_pre_pi_ms=utilidad_pre_pi_ms,

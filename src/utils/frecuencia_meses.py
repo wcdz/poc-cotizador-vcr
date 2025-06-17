@@ -1,4 +1,4 @@
-from src.core.constans import ANUAL, SEMESTRAL, TRIMESTRAL, MENSUAL
+from src.core.constants import ANUAL, SEMESTRAL, TRIMESTRAL, MENSUAL
 
 
 def frecuencia_meses(frecuencia_pago_primas) -> int:

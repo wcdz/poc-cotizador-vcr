@@ -1,10 +1,6 @@
 from src.repositories.parametros_repository import JsonParametrosRepository
-from src.services.expuestos_mes_service import ExpuestosMesService
 from src.models.schemas.expuestos_mes_schema import ProyeccionActuarialOutput
-from src.models.schemas.gastos_schema import (
-    Gastos as GastosSchema,
-    ResultadoMensualGastos,
-)
+from src.models.schemas.gastos_schema import ResultadoMensualGastos
 from src.models.domain.gastos import Gastos
 from decimal import Decimal
 from typing import Dict, List, Any

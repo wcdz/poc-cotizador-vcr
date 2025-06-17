@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from src.core.constans import TASA_MENSUALIZACION, FACTOR_AJUSTE, FACTOR_RESERVA
+from src.core.constants import TASA_MENSUALIZACION, FACTOR_AJUSTE, FACTOR_RESERVA
 from src.helpers.tasa_interes_reserva import tasa_interes_reserva
 from src.common.frecuencia_pago import FrecuenciaPago
 from typing import Dict
