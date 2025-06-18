@@ -49,4 +49,4 @@ if __name__ == "__main__":
 
     # Usar puerto de configuración o de variable de entorno
     port = int(os.getenv("PORT", settings.PORT))
-    uvicorn.run("src.main:app", host="localhost", port=port, reload=True)
+    uvicorn.run("src.main:app", host="0.0.0.0", port=port, reload=True)

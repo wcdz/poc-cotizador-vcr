@@ -19,7 +19,7 @@ class GastosInput(BaseModel):
     prima: float = Field(..., description="Prima del seguro")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "periodo_vigencia": 20,
                 "periodo_pago_primas": 10,
